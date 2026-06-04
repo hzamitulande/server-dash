@@ -1,0 +1,108 @@
+{
+  "items": [
+    {
+      "id": "notif_79bd0897",
+      "jobId": "job_282074ad",
+      "kind": "report.export",
+      "entityType": "report_export",
+      "entityId": "job_282074ad",
+      "code": "REPORT_EXPORT_COMPLETED",
+      "status": "completed",
+      "priority": "medium",
+      "read": false,
+      "title": "Reporte listo",
+      "message": "Tu reporte PDF ya está disponible para descargar",
+      "format": "pdf",
+      "progress": 100,
+      "downloadUrl": "http://localhost:3001/downloads/job_282074ad.pdf",
+      "action": {
+        "type": "download",
+        "label": "Descargar",
+        "url": "http://localhost:3001/downloads/job_282074ad.pdf",
+        "target": "_blank"
+      },
+      "createdAt": "2026-04-30T14:37:14.698Z",
+      "updatedAt": "2026-04-30T14:37:24.731Z",
+      "sequence": 6,
+      "metadata": {}
+    },
+    {
+      "id": "notif_a1f4e2fc",
+      "jobId": "job_0b80f9d1",
+      "kind": "report.export",
+      "entityType": "report_export",
+      "entityId": "job_0b80f9d1",
+      "code": "REPORT_EXPORT_COMPLETED",
+      "status": "completed",
+      "priority": "medium",
+      "read": false,
+      "title": "Reporte listo",
+      "message": "Tu reporte XLSX ya está disponible para descargar",
+      "format": "xlsx",
+      "progress": 100,
+      "downloadUrl": "http://localhost:3001/downloads/job_0b80f9d1.xlsx",
+      "action": {
+        "type": "download",
+        "label": "Descargar",
+        "url": "http://localhost:3001/downloads/job_0b80f9d1.xlsx",
+        "target": "_blank"
+      },
+      "createdAt": "2026-04-01T13:54:48.139Z",
+      "updatedAt": "2026-04-01T13:54:58.159Z",
+      "sequence": 6,
+      "metadata": {}
+    },
+    {
+      "id": "notif_dfb209c8",
+      "jobId": "job_0aad8de3",
+      "kind": "report.export",
+      "entityType": "report_export",
+      "entityId": "job_0aad8de3",
+      "code": "REPORT_EXPORT_QUEUED",
+      "status": "queued",
+      "priority": "medium",
+      "read": false,
+      "title": "Solicitud enviada",
+      "message": "La exportación CSV fue enviada correctamente",
+      "format": "csv",
+      "progress": 0,
+      "downloadUrl": null,
+      "action": {
+        "type": "none",
+        "label": null,
+        "url": null,
+        "target": null
+      },
+      "createdAt": "2026-03-19T20:52:41.476Z",
+      "updatedAt": "2026-03-19T20:52:41.476Z",
+      "sequence": 1,
+      "metadata": {}
+    },
+    {
+      "id": "notif_c5a7e6a8",
+      "jobId": "job_759873f7",
+      "kind": "report.export",
+      "entityType": "report_export",
+      "entityId": "job_759873f7",
+      "code": "REPORT_EXPORT_COMPLETED",
+      "status": "completed",
+      "priority": "medium",
+      "read": false,
+      "title": "Reporte listo",
+      "message": "Tu reporte PDF ya está disponible para descargar",
+      "format": "pdf",
+      "progress": 100,
+      "downloadUrl": "http://localhost:3001/downloads/job_759873f7.pdf",
+      "action": {
+        "type": "download",
+        "label": "Descargar",
+        "url": "http://localhost:3001/downloads/job_759873f7.pdf",
+        "target": "_blank"
+      },
+      "createdAt": "2026-03-18T23:56:52.006Z",
+      "updatedAt": "2026-03-18T23:57:02.027Z",
+      "sequence": 6,
+      "metadata": {}
+    }
+  ]
+}
