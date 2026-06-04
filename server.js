@@ -5,14 +5,53 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const { randomUUID } = require("crypto");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const server = http.createServer(app);
 
 const PORT = 3001;
 const DATA_FILE = path.join(__dirname, "data", "notifications.json");
+const DASHBOARDS_FILE = path.join(__dirname, "data", "dashboards.json");
+
+// JWT — mismo secret que local-server.js
+const JWT_SECRET = "cari-local-dev-secret-2024";
 
 app.use(cors());
+
+// ── Auth middleware ─────────────────────────────────────────────────────────
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Token requerido" });
+  }
+  try {
+    req.user = jwt.verify(authHeader.slice(7), JWT_SECRET);
+    next();
+  } catch {
+    return res.status(401).json({ message: "Token inválido o expirado" });
+  }
+}
+
+// ── Dashboards persistence ──────────────────────────────────────────────────
+function readDashboards() {
+  try {
+    const raw = fs.readFileSync(DASHBOARDS_FILE, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    return { items: [] };
+  }
+}
+function writeDashboards(data) {
+  fs.writeFileSync(DASHBOARDS_FILE, JSON.stringify(data, null, 2), "utf-8");
+}
+
+// ── Widget filters comunes ──────────────────────────────────────────────────
+const WIDGET_FILTERS = {
+  name_id: { type: "string", label: "filter.name", endpoint: "/filter/name", required: false },
+  branch_office_id: { type: "string", label: "filter.branch_office", endpoint: "/filter/branch-office", required: false },
+  identification_id: { type: "string", label: "filter.identification", endpoint: "/filter/identification", required: false },
+};
 app.use(express.json());
 
 // ── JSON persistence ────────────────────────────────────────────────────────
@@ -317,8 +356,162 @@ app.post("/mock/report", (req, res) => {
 
 // ── Start ───────────────────────────────────────────────────────────────────
 
-server.listen(PORT, () => {
-  console.log(`Backend corriendo en http://localhost:${PORT}`);
-  console.log(`WebSocket en ws://localhost:${PORT}/ws`);
+// ── Dashboard de Asistencias ────────────────────────────────────────────────
+
+app.get("/attendance", requireAuth, (_req, res) => {
+  res.json({
+    data: {
+      widgets: [
+        { id: "w-kpi-present",  type: "kpi",   subtype: "kpi",  title: "attendance.kpi.present",           endpoint: "/widget/kpi-present" },
+        { id: "w-kpi-absent",   type: "kpi",   subtype: "kpi",  title: "attendance.kpi.absent",            endpoint: "/widget/kpi-absent" },
+        { id: "w-kpi-late",     type: "kpi",   subtype: "kpi",  title: "attendance.kpi.late",              endpoint: "/widget/kpi-late" },
+        { id: "w-bar-daily",    type: "chart", subtype: "bar",  stylized: "bar-group", title: "attendance.chart.daily",        endpoint: "/widget/bar-daily" },
+        { id: "w-area-weekly",  type: "chart", subtype: "area", stylized: "none",      title: "attendance.chart.weekly_trend", endpoint: "/widget/area-weekly" },
+        { id: "w-pie-absence",  type: "chart", subtype: "pie",                         title: "attendance.chart.absence_distribution", endpoint: "/widget/pie-absence" },
+      ],
+    },
+  });
 });
+
+app.post("/widget/kpi-present", requireAuth, (_req, res) => {
+  res.json({ data: { mainValue: { value: 142 }, metrics: [{ type: "numeric", key: "inbound", value: 130, label: "attendance.kpi.entries" }, { type: "numeric", key: "outbound", value: 12, label: "attendance.kpi.exits" }, { key: "distribution", type: "distribution", label: "attendance.kpi.distribution", segments: [{ label: "Presentes", value: 130, color: "#22c55e" }, { label: "Ausentes", value: 12, color: "#ef4444" }] }], trend: { direction: "up", value: "3", unit: "%", color: "#22c55e", label: "attendance.trend.vs_yesterday", create_at: "" } } });
+});
+
+app.post("/widget/kpi-absent", requireAuth, (_req, res) => {
+  res.json({ data: { mainValue: { value: 18 }, metrics: [{ type: "numeric", key: "justified", value: 10, label: "attendance.kpi.justified" }, { type: "numeric", key: "unjustified", value: 8, label: "attendance.kpi.unjustified" }, { key: "distribution", type: "distribution", label: "attendance.kpi.absence_type", segments: [{ label: "Justificadas", value: 10, color: "#f59e0b" }, { label: "No justificadas", value: 8, color: "#ef4444" }] }], trend: { direction: "down", value: "2", unit: "%", color: "#22c55e", label: "attendance.trend.vs_yesterday", create_at: "" } } });
+});
+
+app.post("/widget/kpi-late", requireAuth, (_req, res) => {
+  res.json({ data: { mainValue: { value: 7 }, metrics: [{ type: "numeric", key: "avg_minutes", value: "12:30", label: "attendance.kpi.avg_delay" }, { key: "distribution", type: "distribution", label: "attendance.kpi.delay_range", segments: [{ label: "< 15 min", value: 4, color: "#f59e0b" }, { label: "15-30 min", value: 2, color: "#f97316" }, { label: "> 30 min", value: 1, color: "#ef4444" }] }], trend: { direction: "up", value: "1", unit: "", color: "#ef4444", label: "attendance.trend.vs_yesterday", create_at: "" } } });
+});
+
+app.post("/widget/bar-daily", requireAuth, (_req, res) => {
+  const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+  res.json({ data: { series: [{ name: "Entradas", data: days.map((d) => ({ type: d, value: 110 + Math.floor(Math.random() * 40) })) }, { name: "Ausentes", data: days.map((d) => ({ type: d, value: 5 + Math.floor(Math.random() * 20) })) }] } });
+});
+
+app.post("/widget/bar-weekly", requireAuth, (_req, res) => {
+  const weeks = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"];
+  res.json({ data: { series: [{ name: "Entradas", data: weeks.map((w) => ({ type: w, value: 700 + Math.floor(Math.random() * 100) })) }] } });
+});
+
+app.post("/widget/area-weekly", requireAuth, (_req, res) => {
+  const weeks = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"];
+  const base = new Date();
+  res.json({ data: { series: [{ name: "Presentes", data: weeks.map((w, i) => { const d = new Date(base); d.setDate(d.getDate() - (3 - i) * 7); return { type: w, value: 120 + Math.floor(Math.random() * 30), date: d.toISOString().slice(0, 10) }; }) }, { name: "Ausentes", data: weeks.map((w, i) => { const d = new Date(base); d.setDate(d.getDate() - (3 - i) * 7); return { type: w, value: 10 + Math.floor(Math.random() * 15), date: d.toISOString().slice(0, 10) }; }) }] } });
+});
+
+app.post("/widget/pie-absence", requireAuth, (_req, res) => {
+  res.json({ data: { series: [{ name: "Distribución", data: [{ type: "Presentes", value: 142 }, { type: "Ausentes", value: 18 }, { type: "Tardanzas", value: 7 }, { type: "Vacaciones", value: 5 }, { type: "Incapacidades", value: 3 }] }] } });
+});
+
+// ── Dashboards CRUD ─────────────────────────────────────────────────────────
+
+app.get("/dashboards-list", requireAuth, (_req, res) => {
+  const { items } = readDashboards();
+  const views = items.map((dash) => ({
+    ...dash,
+    layout_config: (dash.layout_config || []).map((widget) => ({
+      ...widget,
+      filters: widget.filters ?? WIDGET_FILTERS,
+    })),
+  }));
+  res.json({ data: { endpoint: "/widgets-list", views } });
+});
+
+app.post("/dashboards-list", requireAuth, (req, res) => {
+  const { name, layout_config = [] } = req.body ?? {};
+  if (!name) return res.status(400).json({ message: "El campo 'name' es requerido" });
+  const store = readDashboards();
+  const newDash = { id: randomUUID(), name, layout_config, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+  store.items.push(newDash);
+  writeDashboards(store);
+  return res.status(201).json({ data: newDash });
+});
+
+app.put("/dashboards-list/:id", requireAuth, (req, res) => {
+  const { id } = req.params;
+  const { name, layout_config } = req.body ?? {};
+  const store = readDashboards();
+  const idx = store.items.findIndex((d) => d.id === id);
+  if (idx === -1) return res.status(404).json({ message: "Dashboard no encontrado" });
+  if (name !== undefined) store.items[idx].name = name;
+  if (layout_config !== undefined) store.items[idx].layout_config = layout_config;
+  store.items[idx].updated_at = new Date().toISOString();
+  writeDashboards(store);
+  return res.json({ data: store.items[idx] });
+});
+
+app.delete("/dashboards-list/:id", requireAuth, (req, res) => {
+  const { id } = req.params;
+  const store = readDashboards();
+  const before = store.items.length;
+  store.items = store.items.filter((d) => d.id !== id);
+  if (store.items.length === before) return res.status(404).json({ message: "Dashboard no encontrado" });
+  writeDashboards(store);
+  return res.json({ data: {} });
+});
+
+app.get("/widgets-list", requireAuth, (_req, res) => {
+  res.json({
+    data: {
+      widgets: [
+        { id: "kpi-present",  type: "kpi",   subtype: "kpi",  title: "Presentes Hoy",            endpoint: "/widget/kpi-present",  path_widget: "/widget/kpi-present",  description: "Total de empleados presentes hoy",      filters: WIDGET_FILTERS },
+        { id: "kpi-absent",   type: "kpi",   subtype: "kpi",  title: "Ausentes Hoy",              endpoint: "/widget/kpi-absent",   path_widget: "/widget/kpi-absent",   description: "Total de empleados ausentes hoy",       filters: WIDGET_FILTERS },
+        { id: "kpi-late",     type: "kpi",   subtype: "kpi",  title: "Tardanzas",                 endpoint: "/widget/kpi-late",     path_widget: "/widget/kpi-late",     description: "Empleados con tardanza hoy",            filters: WIDGET_FILTERS },
+        { id: "bar-daily",    type: "chart", subtype: "bar",  title: "Asistencia Diaria",         endpoint: "/widget/bar-daily",    path_widget: "/widget/bar-daily",    stylized: "bar-group", description: "Asistencia por día (últimos 7 días)",   filters: WIDGET_FILTERS },
+        { id: "bar-weekly",   type: "chart", subtype: "bar",  title: "Asistencia Semanal",        endpoint: "/widget/bar-weekly",   path_widget: "/widget/bar-weekly",   stylized: "bar-basic", description: "Asistencia por semana (últimas 4 sem)", filters: WIDGET_FILTERS },
+        { id: "area-weekly",  type: "chart", subtype: "area", title: "Tendencia Semanal",         endpoint: "/widget/area-weekly",  path_widget: "/widget/area-weekly",  stylized: "none",      description: "Tendencia de asistencia semanal",       filters: WIDGET_FILTERS },
+        { id: "pie-absence",  type: "chart", subtype: "pie",  title: "Distribución de Ausencias", endpoint: "/widget/pie-absence",  path_widget: "/widget/pie-absence",  description: "Distribución por tipo de ausencia",     filters: WIDGET_FILTERS },
+      ],
+      global_filters: {},
+    },
+  });
+});
+
+// ── Filtros de autocomplete ─────────────────────────────────────────────────
+
+const MOCK_EMPLOYEES_FILTER = [
+  { id: "UA1", name: "Cajero Uno Aero" }, { id: "DA2", name: "Cajero Dos Aero" },
+  { id: "TA3", name: "Cajero Tres Aero" }, { id: "BA1", name: "Barista Uno Aero" },
+  { id: "BD2", name: "Barista Dos Aero" }, { id: "CUP1", name: "Cajero Juan Perez" },
+  { id: "BUP1", name: "Barista Lorena" }, { id: "BDP2", name: "Valentina Barista Lopez" },
+];
+
+app.post("/filter/identification", requireAuth, (req, res) => {
+  const { identification = "" } = req.body ?? {};
+  const q = String(identification).toLowerCase();
+  const matches = MOCK_EMPLOYEES_FILTER.filter((e) => e.id.toLowerCase().includes(q)).slice(0, 8).map((e) => ({ id: e.id, code: e.id, label: e.name }));
+  res.json({ data: matches });
+});
+
+app.post("/filter/branch-office", requireAuth, (req, res) => {
+  const { branch_office = "" } = req.body ?? {};
+  const q = String(branch_office).toLowerCase();
+  const BRANCHES = [{ code: "01", label: "Oficina Central" }, { code: "02", label: "Sede Norte" }, { code: "03", label: "Sede Sur" }, { code: "04", label: "Aeropuerto" }, { code: "05", label: "Centro Comercial" }];
+  const matches = BRANCHES.filter((b) => b.label.toLowerCase().includes(q) || b.code.includes(q)).map((b) => ({ id: b.code, code: b.code, label: b.label }));
+  res.json({ data: matches });
+});
+
+app.post("/filter/name", requireAuth, (req, res) => {
+  const { name = "" } = req.body ?? {};
+  const q = String(name).toLowerCase();
+  const matches = MOCK_EMPLOYEES_FILTER.filter((e) => e.name.toLowerCase().includes(q)).slice(0, 8).map((e) => ({ id: e.id, code: e.id, label: e.name }));
+  res.json({ data: matches });
+});
+
+app.get("/report/config/view", requireAuth, (_req, res) => {
+  res.json({ data: [{ code: "daily", label: "Diario" }, { code: "weekly", label: "Semanal" }, { code: "monthly", label: "Mensual" }] });
+});
+
+// ── Start ───────────────────────────────────────────────────────────────────
+
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Backend corriendo en http://localhost:${PORT}`);
+    console.log(`WebSocket en ws://localhost:${PORT}/ws`);
+  });
+}
+
+module.exports = app;
 
