@@ -334,10 +334,719 @@
               "required": false
             }
           }
+        },
+        {
+          "id": "kpi-late",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Tardanzas",
+          "endpoint": "/widget/kpi-late",
+          "path_widget": "/widget/kpi-late",
+          "description": "Empleados con tardanza hoy",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "bar-daily",
+          "type": "chart",
+          "subtype": "bar",
+          "title": "Asistencia Diaria",
+          "endpoint": "/widget/bar-daily",
+          "path_widget": "/widget/bar-daily",
+          "stylized": "bar-group",
+          "description": "Asistencia por día (últimos 7 días)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "bar-weekly",
+          "type": "chart",
+          "subtype": "bar",
+          "title": "Asistencia Semanal",
+          "endpoint": "/widget/bar-weekly",
+          "path_widget": "/widget/bar-weekly",
+          "stylized": "bar-basic",
+          "description": "Asistencia por semana (últimas 4 sem)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "inactive_users",
+          "type": "chart",
+          "title": "dashboard.administrative.inactive.users",
+          "filters": {
+            "server_id": {
+              "key": "server_id",
+              "type": "select",
+              "label": "filter.server",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          },
+          "subtype": "table",
+          "endpoint": "/v3/dashboard/widget/inactive_users",
+          "stylized": "none"
         }
       ],
       "created_at": "2026-06-03T01:01:52.655Z",
-      "updated_at": "2026-06-03T01:03:38.720Z"
+      "updated_at": "2026-07-08T19:39:08.907Z"
+    },
+    {
+      "id": "876854f9-3e2c-490c-9e23-efefe671519b",
+      "name": "Contratos",
+      "layout_config": [
+        {
+          "id": "kpi-late",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Tardanzas",
+          "endpoint": "/widget/kpi-late",
+          "path_widget": "/widget/kpi-late",
+          "description": "Empleados con tardanza hoy",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "kpi-absent",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Ausentes Hoy",
+          "endpoint": "/widget/kpi-absent",
+          "path_widget": "/widget/kpi-absent",
+          "description": "Total de empleados ausentes hoy",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "kpi-present",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Presentes Hoy",
+          "endpoint": "/widget/kpi-present",
+          "path_widget": "/widget/kpi-present",
+          "description": "Total de empleados presentes hoy",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "bar-daily",
+          "type": "chart",
+          "subtype": "bar",
+          "title": "Asistencia Diaria",
+          "endpoint": "/widget/bar-daily",
+          "path_widget": "/widget/bar-daily",
+          "stylized": "bar-group",
+          "description": "Asistencia por día (últimos 7 días)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "bar-weekly",
+          "type": "chart",
+          "subtype": "bar",
+          "title": "Asistencia Semanal",
+          "endpoint": "/widget/bar-weekly",
+          "path_widget": "/widget/bar-weekly",
+          "stylized": "bar-basic",
+          "description": "Asistencia por semana (últimas 4 sem)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "area-weekly",
+          "type": "chart",
+          "subtype": "area",
+          "title": "Tendencia Semanal",
+          "endpoint": "/widget/area-weekly",
+          "path_widget": "/widget/area-weekly",
+          "stylized": "none",
+          "description": "Tendencia de asistencia semanal",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "pie-absence",
+          "type": "chart",
+          "subtype": "pie",
+          "title": "Distribución de Ausencias",
+          "endpoint": "/widget/pie-absence",
+          "path_widget": "/widget/pie-absence",
+          "description": "Distribución por tipo de ausencia",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        }
+      ],
+      "created_at": "2026-06-05T12:37:43.441Z",
+      "updated_at": "2026-06-05T12:37:43.441Z"
+    },
+    {
+      "id": "53893c14-a41d-438e-a468-f045e0d12f3e",
+      "name": "Creando fdf",
+      "layout_config": [
+        {
+          "id": "bar-daily",
+          "type": "chart",
+          "subtype": "bar",
+          "title": "Asistencia Diaria",
+          "endpoint": "/widget/bar-daily",
+          "path_widget": "/widget/bar-daily",
+          "stylized": "bar-group",
+          "description": "Asistencia por día (últimos 7 días)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "kpi-late",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Tardanzas",
+          "endpoint": "/widget/kpi-late",
+          "path_widget": "/widget/kpi-late",
+          "description": "Empleados con tardanza hoy",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "pie-absence",
+          "type": "chart",
+          "subtype": "pie",
+          "title": "Distribución de Ausencias",
+          "endpoint": "/widget/pie-absence",
+          "path_widget": "/widget/pie-absence",
+          "description": "Distribución por tipo de ausencia",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "area-weekly",
+          "type": "chart",
+          "subtype": "area",
+          "title": "Tendencia Semanal",
+          "endpoint": "/widget/area-weekly",
+          "path_widget": "/widget/area-weekly",
+          "stylized": "none",
+          "description": "Tendencia de asistencia semanal",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "kpi-absent",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Ausentes Hoy",
+          "endpoint": "/widget/kpi-absent",
+          "path_widget": "/widget/kpi-absent",
+          "description": "Total de empleados ausentes hoy",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "kpi-present",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Presentes Hoy",
+          "endpoint": "/widget/kpi-present",
+          "path_widget": "/widget/kpi-present",
+          "description": "Total de empleados presentes hoy",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "bar-weekly",
+          "type": "chart",
+          "subtype": "bar",
+          "title": "Asistencia Semanal",
+          "endpoint": "/widget/bar-weekly",
+          "path_widget": "/widget/bar-weekly",
+          "stylized": "bar-basic",
+          "description": "Asistencia por semana (últimas 4 sem)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        }
+      ],
+      "created_at": "2026-07-09T13:49:54.577Z",
+      "updated_at": "2026-07-09T13:49:54.577Z"
+    },
+    {
+      "id": "4fdafcc3-9a01-4071-81d5-2dd29b5177ab",
+      "name": "Administraciones",
+      "layout_config": [
+        {
+          "id": "inactive-users",
+          "type": "chart",
+          "subtype": "table",
+          "title": "Usuarios Inactivos",
+          "endpoint": "/widget/inactive-users",
+          "path_widget": "/widget/inactive-users",
+          "description": "Lista de usuarios inactivos recientemente",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "bar-daily",
+          "type": "chart",
+          "subtype": "bar",
+          "title": "Asistencia Diaria",
+          "endpoint": "/widget/bar-daily",
+          "path_widget": "/widget/bar-daily",
+          "stylized": "bar-group",
+          "description": "Asistencia por día (últimos 7 días)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "kpi-late",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Tardanzas",
+          "endpoint": "/widget/kpi-late",
+          "path_widget": "/widget/kpi-late",
+          "description": "Empleados con tardanza hoy",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "pie-absence",
+          "type": "chart",
+          "subtype": "pie",
+          "title": "Distribución de Ausencias",
+          "endpoint": "/widget/pie-absence",
+          "path_widget": "/widget/pie-absence",
+          "description": "Distribución por tipo de ausencia",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "area-weekly",
+          "type": "chart",
+          "subtype": "area",
+          "title": "Tendencia Semanal",
+          "endpoint": "/widget/area-weekly",
+          "path_widget": "/widget/area-weekly",
+          "stylized": "none",
+          "description": "Tendencia de asistencia semanal",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        }
+      ],
+      "created_at": "2026-07-09T13:55:41.323Z",
+      "updated_at": "2026-07-09T16:25:55.616Z"
     }
   ]
 }

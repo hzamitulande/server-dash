@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 const { randomUUID } = require("crypto");
+const { data } = require("react-router-dom");
 
 const app = express();
 const PORT = 3002;
@@ -301,6 +302,13 @@ app.get("/attendance", requireAuth, (_req, res) => {
           // ChartPie.tsx usa el endpoint directamente sin buildApiUrl,
           // por lo que debe contener el prefijo /local-api completo.
           endpoint: "/widget/pie-absence",
+        },
+        {
+          id: "w-inactive-user",
+          type: "chart",
+          subtype: "table",
+          title: "attendance.chart.inactive_users",
+          endpoint: "/widget/inactive-users",
         }
       ],
     },
@@ -462,6 +470,10 @@ app.post("/widget/pie-absence", requireAuth, (_req, res) => {
   });
 });
 
+app.post("/widget/inactive-users", requireAuth, (_req, res) => {
+    res.json({data:{summary: {label: "Usuarios Inactivos", value: 3}, series: [{name: "Top Enterprices", type: "table", columns: [{key: "enterprice", label: "enterprice"}, {key: "devices", label: "devices"}], data: [{enterprice: "Dipsa Food", devices: "CELL PHONES FO00067 - LIVANOVA-OUTSOURCING DE RECEPCI\u00d3N , CELL PHONES IMAGENOLOGIA, CELL PHONES IMAGENOLOGIA", tooltip: "2018-10-18 09:43:01"}, {enterprice: "Adecco Outsourcing Colombia", devices: "CELL PHONES FO00068 - LIVANOVA-OUTSOURCING DE RECEPCI\u00d3N", tooltip: "2018-10-19 10:00:00"}, {enterprice: "Empresa 3", devices: "CELL PHONES FO00069 - LIVANOVA-OUTSOURCING DE RECEPCI\u00d3N", tooltip: "2018-10-20 11:00:00"}]}] }});
+});
+
 
 // ═══════════════════════════════════════════
 // 2.2 — Dashboards CRUD
@@ -553,6 +565,7 @@ app.get("/widgets-list", requireAuth, (_req, res) => {
         { id: "bar-weekly",   type: "chart", subtype: "bar",  title: "Asistencia Semanal",        endpoint: "/widget/bar-weekly",   path_widget: "/widget/bar-weekly",   stylized: "bar-basic", description: "Asistencia por semana (últimas 4 sem)",   filters: WIDGET_FILTERS },
         { id: "area-weekly",  type: "chart", subtype: "area", title: "Tendencia Semanal",         endpoint: "/widget/area-weekly",  path_widget: "/widget/area-weekly",  stylized: "none",      description: "Tendencia de asistencia semanal",         filters: WIDGET_FILTERS },
         { id: "pie-absence",  type: "chart", subtype: "pie",  title: "Distribución de Ausencias", endpoint: "/widget/pie-absence",  path_widget: "/widget/pie-absence",  description: "Distribución por tipo de ausencia",       filters: WIDGET_FILTERS },
+        { id: "inactive-users", type: "chart", subtype: "table", title: "Usuarios Inactivos", endpoint: "/widget/inactive-users", path_widget: "/widget/inactive-users", description: "Lista de usuarios inactivos recientemente", filters: WIDGET_FILTERS },
       ],
       global_filters: {},
     },

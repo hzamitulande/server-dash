@@ -19,6 +19,61 @@ const JWT_SECRET = "cari-local-dev-secret-2024";
 
 app.use(cors());
 
+/* ---------- Mock users + login/user-context (copiado de local-server.js) ---------- */
+const USERS = [
+  { id: "1", username: "admin@cari.com", password: "admin123", name: "Admin Local", role: "admin" },
+  { id: "2", username: "user@cari.com",  password: "user123",  name: "Usuario Local", role: "user" },
+];
+
+const MENU_BY_ROLE = {
+  admin: [
+    { code: "dashboards", items: [{ code: "dashboards.attendances", path: "/attendance" }, { code: "dashboards.list", path: "/dashboards-list" }] },
+    { code: "reports",    items: [{ code: "reports.payroll", path: "/prenomina-data" }] },
+  ],
+  user: [
+    { code: "dashboards", items: [{ code: "dashboards.attendances", path: "/attendance" }] },
+  ],
+};
+
+const PERMISSIONS_BY_ROLE = {
+  admin: ["read", "write", "delete", "export"],
+  user:  ["read"],
+};
+
+const JWT_EXPIRES_IN = "8h";
+
+app.post("/login", (req, res) => {
+  const { username, password } = req.body ?? {};
+  if (!username || !password) return res.status(400).json({ message: "Credenciales requeridas" });
+
+  const user = USERS.find((u) => u.username === username && u.password === password);
+  if (!user) return res.status(401).json({ message: "Usuario o contraseña incorrectos" });
+
+  const token = jwt.sign(
+    { sub: user.id, path: "", userContext: "/user-context" },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+
+  return res.json({ token });
+});
+
+app.get("/user-context", requireAuth, (req, res) => {
+  const user = USERS.find((u) => u.id === req.user.sub);
+  if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+  const menu = MENU_BY_ROLE[user.role] ?? [];
+  const permissions = PERMISSIONS_BY_ROLE[user.role] ?? [];
+
+  return res.json({
+    user: { id: user.id, name: user.name, role: user.role },
+    menu,
+    permissions,
+  });
+});
+/* --------------------------------------------------------------------------------- */
+
+
 // ── Auth middleware ─────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -368,6 +423,7 @@ app.get("/attendance", requireAuth, (_req, res) => {
         { id: "w-bar-daily",    type: "chart", subtype: "bar",  stylized: "bar-group", title: "attendance.chart.daily",        endpoint: "/widget/bar-daily" },
         { id: "w-area-weekly",  type: "chart", subtype: "area", stylized: "none",      title: "attendance.chart.weekly_trend", endpoint: "/widget/area-weekly" },
         { id: "w-pie-absence",  type: "chart", subtype: "pie",                         title: "attendance.chart.absence_distribution", endpoint: "/widget/pie-absence" },
+        { id: "w-inactive-user", type: "chart", subtype: "table", title: "attendance.chart.inactive_users", endpoint: "/widget/inactive-users" },
       ],
     },
   });
@@ -405,6 +461,9 @@ app.post("/widget/pie-absence", requireAuth, (_req, res) => {
   res.json({ data: { series: [{ name: "Distribución", data: [{ type: "Presentes", value: 142 }, { type: "Ausentes", value: 18 }, { type: "Tardanzas", value: 7 }, { type: "Vacaciones", value: 5 }, { type: "Incapacidades", value: 3 }] }] } });
 });
 
+app.post("/widget/inactive-users", requireAuth, (_req, res) => {
+  res.json({ data: { columns: [{ key: "id", label: "identification", type: "string" }, { key: "name", label: "name", type: "string" }, { key: "last_active", label: "last_active", type: "string" }], content: [{ id: "UA1", name: "Cajero Uno Aero", last_active: "2024-06-01 08:15" }, { id: "DA2", name: "Cajero Dos Aero", last_active: "2024-06-02 09:30" }, { id: "TA3", name: "Cajero Tres Aero", last_active: "2024-06-03 07:45" }] } });
+});
 // ── Dashboards CRUD ─────────────────────────────────────────────────────────
 
 app.get("/dashboards-list", requireAuth, (_req, res) => {
@@ -463,6 +522,7 @@ app.get("/widgets-list", requireAuth, (_req, res) => {
         { id: "bar-weekly",   type: "chart", subtype: "bar",  title: "Asistencia Semanal",        endpoint: "/widget/bar-weekly",   path_widget: "/widget/bar-weekly",   stylized: "bar-basic", description: "Asistencia por semana (últimas 4 sem)", filters: WIDGET_FILTERS },
         { id: "area-weekly",  type: "chart", subtype: "area", title: "Tendencia Semanal",         endpoint: "/widget/area-weekly",  path_widget: "/widget/area-weekly",  stylized: "none",      description: "Tendencia de asistencia semanal",       filters: WIDGET_FILTERS },
         { id: "pie-absence",  type: "chart", subtype: "pie",  title: "Distribución de Ausencias", endpoint: "/widget/pie-absence",  path_widget: "/widget/pie-absence",  description: "Distribución por tipo de ausencia",     filters: WIDGET_FILTERS },
+        { id: "inactive-users", type: "chart", subtype: "table", title: "Usuarios Inactivos",     endpoint: "/widget/inactive-users", path_widget: "/widget/inactive-users", description: "Lista de usuarios inactivos", filters: WIDGET_FILTERS },
       ],
       global_filters: {},
     },
