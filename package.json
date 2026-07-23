@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "start:local": "node local-server.js",
-    "dev:local": "node --watch local-server.js"
+    "start:local": "node server.js",
+    "dev:local": "node --watch server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
