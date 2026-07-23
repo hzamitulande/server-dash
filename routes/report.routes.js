@@ -89,7 +89,6 @@ function handleReport(req, res) {
 function createReportRouter(requireAuth) {
   const router = express.Router();
 
-  router.post("/mock/report", requireAuth, handleReport);
   router.post("/prenomina-data", requireAuth, handleReport);
 
   router.post("/filter/identification", requireAuth, (req, res) => {
