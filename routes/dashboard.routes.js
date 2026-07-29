@@ -12,6 +12,7 @@ function buildAttendanceWidgets() {
     { id: "w-area-weekly", type: "chart", subtype: "area", stylized: "none", title: "attendance.chart.weekly_trend", endpoint: "/widget/area-weekly" },
     { id: "w-pie-absence", type: "chart", subtype: "pie", title: "attendance.chart.absence_distribution", endpoint: "/widget/pie-absence" },
     { id: "w-inactive-user", type: "chart", subtype: "table", title: "attendance.chart.inactive_users", endpoint: "/widget/inactive-users" },
+    { id: "w-kpi-coverage", type: "kpi", subtype: "kpi", title: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage" },
   ];
 }
 
@@ -40,6 +41,50 @@ function createDashboardRouter(requireAuth) {
           },
         ],
         trend: { direction: "up", value: "3", unit: "%", color: "#22c55e", label: "attendance.trend.vs_yesterday", create_at: "" },
+      },
+    });
+  });
+
+  router.post("/widget/kpi-coverage", requireAuth, (_req, res) => {
+    return res.json({
+      data: {
+        type: "gauge",
+        mainValue: { 
+          label: "Cobertura de Turno en Tiempo Real (Presentismo)",
+          value: 87.3,
+          unit: "%",
+          icon: "clock"
+        },
+        metrics: [
+          { "key": "presentes", "label": "EMPLEADOS PRESENTES", "value": 2740, "type": "numeric" },
+          { "key": "programados", "label": "EMPLEADOS PROGRAMADOS", "value": 3140, "type": "numeric" },
+          {
+                "key": "distribution",
+                "label": "Distribución de Estado",
+                "type": "line",
+                "segments": [
+                    {
+                        "label": "A tiempo",
+                        "value": 2740,
+                        "unit": "",
+                        "color": "#22C55E" 
+                    },
+                    {
+                        "label": "Atrasos",
+                        "value": 280,
+                        "unit": "",
+                        "color": "#F97316" 
+                    },
+                    {
+                        "label": "Ausentes",
+                        "value": 120,
+                        "unit": "",
+                        "color": "#EF4444" 
+                    }
+                ]
+            }
+        ],
+        trend: { direction: "up", value: "+2.1%", color: "#22C55E", label: "vs Semana Pasada (Misma Hora)" },
       },
     });
   });
@@ -271,6 +316,7 @@ function createDashboardRouter(requireAuth) {
           { id: "area-weekly", type: "chart", subtype: "area", title: "Tendencia Semanal", endpoint: "/widget/area-weekly", path_widget: "/widget/area-weekly", stylized: "none", description: "Tendencia de asistencia semanal", filters: WIDGET_FILTERS },
           { id: "pie-absence", type: "chart", subtype: "pie", title: "Distribucion de Ausencias", endpoint: "/widget/pie-absence", path_widget: "/widget/pie-absence", description: "Distribucion por tipo de ausencia", filters: WIDGET_FILTERS },
           { id: "inactive-users", type: "chart", subtype: "table", title: "Usuarios Inactivos", endpoint: "/widget/inactive-users", path_widget: "/widget/inactive-users", description: "Lista de usuarios inactivos recientemente", filters: WIDGET_FILTERS },
+          { id: "kpi-coverage", type: "kpi", subtype: "kpi", title: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage", path_widget: "/widget/kpi-coverage", description: "Cobertura de Turno en Tiempo Real (Presentismo)", filters: WIDGET_FILTERS },
         ],
         global_filters: {},
       },

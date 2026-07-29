@@ -1043,10 +1043,76 @@
               "required": false
             }
           }
+        },
+        {
+          "id": "kpi-coverage",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Cobertura de Turno en Tiempo Real (Presentismo)",
+          "endpoint": "/widget/kpi-coverage",
+          "path_widget": "/widget/kpi-coverage",
+          "description": "Cobertura de Turno en Tiempo Real (Presentismo)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
         }
       ],
       "created_at": "2026-07-09T13:55:41.323Z",
-      "updated_at": "2026-07-09T16:25:55.616Z"
+      "updated_at": "2026-07-29T14:48:17.685Z"
+    },
+    {
+      "id": "bf455ceb-7178-4d21-ac9b-e0ef815b04ac",
+      "name": "Nuevo",
+      "layout_config": [
+        {
+          "id": "kpi-coverage",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Cobertura de Turno en Tiempo Real (Presentismo)",
+          "endpoint": "/widget/kpi-coverage",
+          "path_widget": "/widget/kpi-coverage",
+          "description": "Cobertura de Turno en Tiempo Real (Presentismo)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        }
+      ],
+      "created_at": "2026-07-29T14:06:09.773Z",
+      "updated_at": "2026-07-29T14:06:09.773Z"
     }
   ]
 }
