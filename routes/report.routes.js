@@ -2,6 +2,23 @@ const express = require("express");
 const { BRANCHES, MOCK_EMPLOYEES, MOCK_HOUR_COLS, buildPayrollRows } = require("../services/mock-data.service");
 const { getOperatorsForType, evalExpression, validateFilterExpression, normalizeLegacyFilters } = require("../services/report-filter.service");
 
+const LEGACY_FILTER_ENDPOINTS = {
+  identification: "/local-api/filter/identification",
+  branch_office: "/local-api/filter/branch-office",
+  name: "/local-api/filter/name",
+};
+
+function buildFiltersMeta() {
+  return {
+    start_time: { type: "time-range", required: true, format: "Y-m-d H:i:s", label: "report.filter.datetime" },
+    // IMPORTANT: Any filter with endpoint requires a matching backend route implementation.
+    identification: { type: "string", required: false, label: "report.filter.identification", endpoint: LEGACY_FILTER_ENDPOINTS.identification },
+    branch_office: { type: "string", required: false, label: "report.filter.branch_office", endpoint: LEGACY_FILTER_ENDPOINTS.branch_office },
+    name: { type: "string", required: false, label: "report.filter.name", endpoint: LEGACY_FILTER_ENDPOINTS.name },
+    view: { endpoint: "/local-api/report/config/view" },
+  };
+}
+
 function buildColumnsMeta() {
   const raw = [
     { key: "person_id_ALIAS_3", label: "identification", type: "string" },
@@ -36,13 +53,7 @@ function buildReportResponse({ page, pageSize, rows }) {
       ],
       columns: buildColumnsMeta(),
       content,
-      filters: {
-        start_time: { type: "time-range", required: true, format: "Y-m-d H:i:s", label: "report.filter.datetime" },
-        identification: { type: "string", required: false, label: "report.filter.identification", endpoint: "/local-api/filter/identification" },
-        branch_office: { type: "string", required: false, label: "report.filter.branch_office", endpoint: "/local-api/filter/branch-office" },
-        name: { type: "string", required: false, label: "report.filter.name", endpoint: "/local-api/filter/name" },
-        view: { endpoint: "/local-api/report/config/view" },
-      },
+      filters: buildFiltersMeta(),
       pagination: { page, pageSize, total },
       meta: { generatedAt: new Date().toISOString(), exportAvailable: true },
     },
@@ -91,7 +102,8 @@ function createReportRouter(requireAuth) {
 
   router.post("/prenomina-data", requireAuth, handleReport);
 
-  router.post("/filter/identification", requireAuth, (req, res) => {
+  // Keep these routes aligned with buildFiltersMeta().*.endpoint
+  router.post(LEGACY_FILTER_ENDPOINTS.identification.replace("/local-api", ""), requireAuth, (req, res) => {
     const { identification = "" } = req.body ?? {};
     const query = String(identification).toLowerCase();
 
@@ -103,7 +115,7 @@ function createReportRouter(requireAuth) {
     return res.json({ data: matches });
   });
 
-  router.post("/filter/branch-office", requireAuth, (req, res) => {
+  router.post(LEGACY_FILTER_ENDPOINTS.branch_office.replace("/local-api", ""), requireAuth, (req, res) => {
     const { branch_office = "" } = req.body ?? {};
     const query = String(branch_office).toLowerCase();
 
@@ -114,7 +126,7 @@ function createReportRouter(requireAuth) {
     return res.json({ data: matches });
   });
 
-  router.post("/filter/name", requireAuth, (req, res) => {
+  router.post(LEGACY_FILTER_ENDPOINTS.name.replace("/local-api", ""), requireAuth, (req, res) => {
     const { name = "" } = req.body ?? {};
     const query = String(name).toLowerCase();
 
