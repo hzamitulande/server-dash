@@ -1072,23 +1072,16 @@
               "required": false
             }
           }
-        }
-      ],
-      "created_at": "2026-07-09T13:55:41.323Z",
-      "updated_at": "2026-07-29T14:48:17.685Z"
-    },
-    {
-      "id": "bf455ceb-7178-4d21-ac9b-e0ef815b04ac",
-      "name": "Nuevo",
-      "layout_config": [
+        },
         {
-          "id": "kpi-coverage",
-          "type": "kpi",
-          "subtype": "kpi",
-          "title": "Cobertura de Turno en Tiempo Real (Presentismo)",
-          "endpoint": "/widget/kpi-coverage",
-          "path_widget": "/widget/kpi-coverage",
-          "description": "Cobertura de Turno en Tiempo Real (Presentismo)",
+          "id": "bar-weekly",
+          "type": "chart",
+          "subtype": "bar",
+          "title": "Asistencia Semanal",
+          "endpoint": "/widget/bar-weekly",
+          "path_widget": "/widget/bar-weekly",
+          "stylized": "bar-basic",
+          "description": "Asistencia por semana (ultimas 4 sem)",
           "filters": {
             "name_id": {
               "type": "string",
@@ -1111,8 +1104,75 @@
           }
         }
       ],
-      "created_at": "2026-07-29T14:06:09.773Z",
-      "updated_at": "2026-07-29T14:06:09.773Z"
+      "created_at": "2026-07-09T13:55:41.323Z",
+      "updated_at": "2026-07-29T21:00:52.486Z"
+    },
+    {
+      "id": "4e580756-79d3-4ec2-aadd-8feccd0bacbd",
+      "name": "Nuevo",
+      "layout_config": [
+        {
+          "id": "bar-methods",
+          "type": "chart",
+          "subtype": "bar",
+          "title": "Distribución de Métodos de Registro",
+          "endpoint": "/widget/bar-methods",
+          "path_widget": "/widget/bar-methods",
+          "stylized": "bar-group",
+          "description": "Distribución de métodos de registro (últimas 4 semanas)",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        },
+        {
+          "id": "kpi-coverage",
+          "type": "kpi",
+          "subtype": "kpi",
+          "title": "Cobertura de Turno en Tiempo Real (Presentismo)",
+          "endpoint": "/widget/kpi-coverage",
+          "path_widget": "/widget/kpi-coverage",
+          "description": "Cobertura de Turno en Tiempo Real",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            }
+          }
+        }
+      ],
+      "created_at": "2026-07-30T13:14:39.170Z",
+      "updated_at": "2026-07-30T15:17:09.684Z"
     }
   ]
 }

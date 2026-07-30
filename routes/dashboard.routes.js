@@ -2,6 +2,7 @@ const express = require("express");
 const { randomUUID } = require("crypto");
 const { readDashboards, writeDashboards } = require("../services/store.service");
 const { WIDGET_FILTERS } = require("../services/mock-data.service");
+const { type } = require("os");
 
 function buildAttendanceWidgets() {
   return [
@@ -13,6 +14,7 @@ function buildAttendanceWidgets() {
     { id: "w-pie-absence", type: "chart", subtype: "pie", title: "attendance.chart.absence_distribution", endpoint: "/widget/pie-absence" },
     { id: "w-inactive-user", type: "chart", subtype: "table", title: "attendance.chart.inactive_users", endpoint: "/widget/inactive-users" },
     { id: "w-kpi-coverage", type: "kpi", subtype: "kpi", title: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage" },
+    { id: "w-bar-methods", type: "chart", subtype: "bar", stylized: "bar-group", title: "attendance.chart.methods", endpoint: "/widget/bar-methods" },
   ];
 }
 
@@ -50,7 +52,6 @@ function createDashboardRouter(requireAuth) {
       data: {
         type: "gauge",
         mainValue: { 
-          label: "Cobertura de Turno en Tiempo Real (Presentismo)",
           value: 87.3,
           unit: "%",
           icon: "clock"
@@ -238,6 +239,41 @@ function createDashboardRouter(requireAuth) {
     });
   });
 
+  router.post("/widget/bar-methods", requireAuth, (_req, res) => {
+    const days = Array.from({ length: 30 }, (_, index) => index + 1);
+    const biometricoValues = [22, 18, 95, 19, 89, 186, 14, 11, 17, 176, 13, 70, 18, 15, 16, 160, 17, 54, 15, 149, 14, 143, 10, 137, 14, 111, 128, 125, 122, 119];
+    const manualValues = [15, 52, 14, 17, 10, 102, 165, 168, 70, 73, 16, 78, 81, 14, 16, 89, 191, 14, 19, 19, 10, 24, 6, 19, 21, 11, 116, 219, 21, 224];
+
+    return res.json({
+      data: {
+        series: [
+          {
+            name: "Biometrico",
+            stackId: "a",
+            yAxisId: "left",
+            color: "#4caf50",
+            data: days.map((day, index) => ({
+              type: String(day),
+              month: "Feb",
+              value: biometricoValues[index],
+            })),
+          },
+          {
+            name: "Manual",
+            stackId: "a",
+            yAxisId: "left",
+            color: "#2196f3",
+            data: days.map((day, index) => ({
+              type: String(day),
+              month: "Feb",
+              value: manualValues[index],
+            })),
+          },
+        ],
+      },
+    });
+  });
+
   router.get("/dashboards-list", requireAuth, (_req, res) => {
     const { items } = readDashboards();
     const views = items.map((dashboard) => ({
@@ -316,7 +352,8 @@ function createDashboardRouter(requireAuth) {
           { id: "area-weekly", type: "chart", subtype: "area", title: "Tendencia Semanal", endpoint: "/widget/area-weekly", path_widget: "/widget/area-weekly", stylized: "none", description: "Tendencia de asistencia semanal", filters: WIDGET_FILTERS },
           { id: "pie-absence", type: "chart", subtype: "pie", title: "Distribucion de Ausencias", endpoint: "/widget/pie-absence", path_widget: "/widget/pie-absence", description: "Distribucion por tipo de ausencia", filters: WIDGET_FILTERS },
           { id: "inactive-users", type: "chart", subtype: "table", title: "Usuarios Inactivos", endpoint: "/widget/inactive-users", path_widget: "/widget/inactive-users", description: "Lista de usuarios inactivos recientemente", filters: WIDGET_FILTERS },
-          { id: "kpi-coverage", type: "kpi", subtype: "kpi", title: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage", path_widget: "/widget/kpi-coverage", description: "Cobertura de Turno en Tiempo Real (Presentismo)", filters: WIDGET_FILTERS },
+          { id: "kpi-coverage", type: "kpi", subtype: "kpi", title: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage", path_widget: "/widget/kpi-coverage", description: "Cobertura de Turno en Tiempo Real", filters: WIDGET_FILTERS },
+          { id: "bar-methods", type: "chart", subtype: "bar", title: "Distribución de Métodos de Registro", endpoint: "/widget/bar-methods", path_widget: "/widget/bar-methods", stylized: "bar-group", description: "Distribución de métodos de registro (últimas 4 semanas)", filters: WIDGET_FILTERS },
         ],
         global_filters: {},
       },
