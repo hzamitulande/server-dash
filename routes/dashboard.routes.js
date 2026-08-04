@@ -15,6 +15,7 @@ function buildAttendanceWidgets() {
     { id: "w-inactive-user", type: "chart", subtype: "table", title: "attendance.chart.inactive_users", endpoint: "/widget/inactive-users" },
     { id: "w-kpi-coverage", type: "kpi", subtype: "kpi", title: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage" },
     { id: "w-bar-methods", type: "chart", subtype: "bar", stylized: "bar-group", title: "attendance.chart.methods", endpoint: "/widget/bar-methods" },
+    { id: "w-eficiencia-operativa", type: "chart", subtype: "bar", title: "attendance.chart.operational_efficiency", endpoint: "/widget/eficiencia-operativa" },
   ];
 }
 
@@ -51,7 +52,7 @@ function createDashboardRouter(requireAuth) {
     return res.json({
       data: {
         type: "gauge",
-        mainValue: { 
+        mainValue: {
           value: 87.3,
           unit: "%",
           icon: "clock"
@@ -60,30 +61,30 @@ function createDashboardRouter(requireAuth) {
           { "key": "presentes", "label": "EMPLEADOS PRESENTES", "value": 2740, "type": "numeric" },
           { "key": "programados", "label": "EMPLEADOS PROGRAMADOS", "value": 3140, "type": "numeric" },
           {
-                "key": "distribution",
-                "label": "Distribución de Estado",
-                "type": "line",
-                "segments": [
-                    {
-                        "label": "A tiempo",
-                        "value": 2740,
-                        "unit": "",
-                        "color": "#22C55E" 
-                    },
-                    {
-                        "label": "Atrasos",
-                        "value": 280,
-                        "unit": "",
-                        "color": "#F97316" 
-                    },
-                    {
-                        "label": "Ausentes",
-                        "value": 120,
-                        "unit": "",
-                        "color": "#EF4444" 
-                    }
-                ]
-            }
+            "key": "distribution",
+            "label": "Distribución de Estado",
+            "type": "line",
+            "segments": [
+              {
+                "label": "A tiempo",
+                "value": 2740,
+                "unit": "",
+                "color": "#22C55E"
+              },
+              {
+                "label": "Atrasos",
+                "value": 280,
+                "unit": "",
+                "color": "#F97316"
+              },
+              {
+                "label": "Ausentes",
+                "value": 120,
+                "unit": "",
+                "color": "#EF4444"
+              }
+            ]
+          }
         ],
         trend: { direction: "up", value: "+2.1%", color: "#22C55E", label: "vs Semana Pasada (Misma Hora)" },
       },
@@ -243,34 +244,84 @@ function createDashboardRouter(requireAuth) {
     const days = Array.from({ length: 30 }, (_, index) => index + 1);
     const biometricoValues = [22, 18, 95, 19, 89, 186, 14, 11, 17, 176, 13, 70, 18, 15, 16, 160, 17, 54, 15, 149, 14, 143, 10, 137, 14, 111, 128, 125, 122, 119];
     const manualValues = [15, 52, 14, 17, 10, 102, 165, 168, 70, 73, 16, 78, 81, 14, 16, 89, 191, 14, 19, 19, 10, 24, 6, 19, 21, 11, 116, 219, 21, 224];
+    const manualTotal = manualValues.reduce((acc, value) => acc + value, 0);
+    const biometricoTotal = biometricoValues.reduce((acc, value) => acc + value, 0);
+    const combinedTotal = manualTotal + biometricoTotal;
+    const manualRatePercent = combinedTotal > 0 ? Number(((manualTotal / combinedTotal) * 100).toFixed(1)) : 0;
 
     return res.json({
       data: {
+        summary: {
+          type: "gauge",
+          label: "% tasa mensual promedio",
+          context: "Ultimos 30 días",
+          value: `${manualRatePercent}`,
+          unit: "%",
+          color: "#2196f3",
+        },
         series: [
           {
-            name: "Biometrico",
+            label: "Biometrico",
             stackId: "a",
             yAxisId: "left",
             color: "#4caf50",
             data: days.map((day, index) => ({
               type: String(day),
-              month: "Feb",
+              label: "Feb",
               value: biometricoValues[index],
             })),
           },
           {
-            name: "Manual",
+            label: "Manual",
             stackId: "a",
             yAxisId: "left",
             color: "#2196f3",
             data: days.map((day, index) => ({
               type: String(day),
-              month: "Feb",
+              label: "Feb",
               value: manualValues[index],
             })),
           },
         ],
       },
+    });
+  });
+
+  router.post("/widget/eficiencia-operativa", requireAuth, (_req, res) => {
+    // Eje X: Meses históricos correspondientes al gráfico
+    const days = ["Mie", "Jue", "Vie", "Sab", "Dom", "Lun", "Mar"];
+
+    // Valores extraídos del wireframe
+    const evolutionDay = [20, 15, 18, 22, 25, 30, 28];
+
+    return res.json({
+      data: {
+        metrics: {
+          summary: {
+            type: "kpi",
+            label: "Pendientes de resolucion",
+            value: 112,
+            context: "inconsistencias (Acumulado Semana)",
+          },
+          distribution_breakdown: {
+            label: "Sin salida",
+            value: 82,
+            absolete_value: 92,
+            color: "#F97316",
+          },
+        },
+        series: [
+          {
+            label: "Volumen Total",
+            yAxisId: "left",       // Escala principal (ej. 0 a 1000)
+            color: "#4A90E2",      // Azul corporativo
+            data: days.map((day, index) => ({
+              type: day,       // Se mapea al Eje X (Categoría)
+              value: evolutionDay[index],
+            })),
+          }
+        ],
+      }
     });
   });
 
@@ -354,6 +405,7 @@ function createDashboardRouter(requireAuth) {
           { id: "inactive-users", type: "chart", subtype: "table", title: "Usuarios Inactivos", endpoint: "/widget/inactive-users", path_widget: "/widget/inactive-users", description: "Lista de usuarios inactivos recientemente", filters: WIDGET_FILTERS },
           { id: "kpi-coverage", type: "kpi", subtype: "kpi", title: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage", path_widget: "/widget/kpi-coverage", description: "Cobertura de Turno en Tiempo Real", filters: WIDGET_FILTERS },
           { id: "bar-methods", type: "chart", subtype: "bar", title: "Distribución de Métodos de Registro", endpoint: "/widget/bar-methods", path_widget: "/widget/bar-methods", stylized: "bar-group", description: "Distribución de métodos de registro (últimas 4 semanas)", filters: WIDGET_FILTERS },
+          { id: "eficiencia-operativa", type: "chart", subtype: "bar", title: "Eficiencia Operativa", endpoint: "/widget/eficiencia-operativa", path_widget: "/widget/eficiencia-operativa", description: "Eficiencia Operativa (últimos 9 meses)", filters: WIDGET_FILTERS },
         ],
         global_filters: {},
       },
