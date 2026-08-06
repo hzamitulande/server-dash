@@ -6,16 +6,19 @@ const { type } = require("os");
 
 function buildAttendanceWidgets() {
   return [
-    { id: "w-kpi-present", type: "kpi", subtype: "kpi", title: "attendance.kpi.present", endpoint: "/widget/kpi-present" },
-    { id: "w-kpi-absent", type: "kpi", subtype: "kpi", title: "attendance.kpi.absent", endpoint: "/widget/kpi-absent" },
-    { id: "w-kpi-late", type: "kpi", subtype: "kpi", title: "attendance.kpi.late", endpoint: "/widget/kpi-late" },
-    { id: "w-bar-daily", type: "chart", subtype: "bar", stylized: "bar-group", title: "attendance.chart.daily", endpoint: "/widget/bar-daily" },
-    { id: "w-area-weekly", type: "chart", subtype: "area", stylized: "none", title: "attendance.chart.weekly_trend", endpoint: "/widget/area-weekly" },
-    { id: "w-pie-absence", type: "chart", subtype: "pie", title: "attendance.chart.absence_distribution", endpoint: "/widget/pie-absence" },
-    { id: "w-inactive-user", type: "chart", subtype: "table", title: "attendance.chart.inactive_users", endpoint: "/widget/inactive-users" },
-    { id: "w-kpi-coverage", type: "kpi", subtype: "kpi", title: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage" },
-    { id: "w-bar-methods", type: "chart", subtype: "bar", stylized: "bar-group", title: "attendance.chart.methods", endpoint: "/widget/bar-methods" },
-    { id: "w-eficiencia-operativa", type: "chart", subtype: "bar", title: "attendance.chart.operational_efficiency", endpoint: "/widget/eficiencia-operativa" },
+    // { id: "w-kpi-present", type: "kpi", subtype: "kpi", title: "attendance.kpi.present", endpoint: "/widget/kpi-present" },
+    // { id: "w-kpi-absent", type: "kpi", subtype: "kpi", title: "attendance.kpi.absent", endpoint: "/widget/kpi-absent" },
+    // { id: "w-kpi-late", type: "kpi", subtype: "kpi", title: "attendance.kpi.late", endpoint: "/widget/kpi-late" },
+    { id: "w-bar-daily", label: "attendance.chart.daily", endpoint: "/widget/bar-daily" },
+    { id: "w-area-weekly", label: "Evolución de Horas Extras", endpoint: "/widget/area-weekly" },
+    // { id: "w-pie-absence", type: "chart", subtype: "pie", title: "attendance.chart.absence_distribution", endpoint: "/widget/pie-absence" },
+    // { id: "w-inactive-user", type: "chart", subtype: "table", title: "attendance.chart.inactive_users", endpoint: "/widget/inactive-users" },
+    { id: "w-kpi-coverage", label: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage" },
+    // { id: "w-bar-methods", type: "chart", subtype: "bar", stylized: "bar-group", title: "attendance.chart.methods", endpoint: "/widget/bar-methods" },
+    { id: "w-diaria-desglose", label: "Asistencia Diaria y Desglose Operativo", endpoint: "/widget/asistencia-desglose" },
+    { id: "w-area-overtime", label: "Análisis de Horas Extras (Sobrecostos de Nómina)", endpoint: "/widget/area-overtime" },
+    { id: "w-monitoreo-hardware", label: "Monitoreo de Hardware (Lectores Biométricos)", endpoint: "/widget/monitoreo-hardware" },
+    { id: "w-fugas-tiempo-combinadas", label: "Fugas de Tiempo Combinadas por Sucursal", endpoint: "/widget/fugas-tiempo-combinadas" },
   ];
 }
 
@@ -50,44 +53,50 @@ function createDashboardRouter(requireAuth) {
 
   router.post("/widget/kpi-coverage", requireAuth, (_req, res) => {
     return res.json({
-      data: {
-        type: "gauge",
-        mainValue: {
-          value: 87.3,
-          unit: "%",
-          icon: "clock"
-        },
-        metrics: [
-          { "key": "presentes", "label": "EMPLEADOS PRESENTES", "value": 2740, "type": "numeric" },
-          { "key": "programados", "label": "EMPLEADOS PROGRAMADOS", "value": 3140, "type": "numeric" },
-          {
-            "key": "distribution",
-            "label": "Distribución de Estado",
-            "type": "line",
-            "segments": [
-              {
-                "label": "A tiempo",
-                "value": 2740,
-                "unit": "",
-                "color": "#22C55E"
-              },
-              {
-                "label": "Atrasos",
-                "value": 280,
-                "unit": "",
-                "color": "#F97316"
-              },
-              {
-                "label": "Ausentes",
-                "value": 120,
-                "unit": "",
-                "color": "#EF4444"
-              }
-            ]
+      data: [
+        {
+          type: "gauge",
+          props: {
+            label: "Cobertura en Tiempo Real",
+            value: 87,
           }
-        ],
-        trend: { direction: "up", value: "+2.1%", color: "#22C55E", label: "vs Semana Pasada (Misma Hora)" },
-      },
+        },
+        {
+          type: "trend",
+          props: {
+            label: "Tendencia",
+            value: 3,
+            unit: "%",
+            direction: "up",
+            color: "#22C55E"
+          }
+        },
+        {
+          type: "distribution",
+          props: [
+            {
+              key: "presentes",
+              label: "EMPLEADOS PRESENTES",
+              value: 2740
+            },
+            {
+              key: "programados",
+              label: "EMPLEADOS PROGRAMADOS",
+              value: 3140
+            },
+            {
+              key: "distribution",
+              type: "distribution",
+              label: "Distribución de Estado",
+              segments: [
+                { label: "A tiempo", value: 2740, color: "#22C55E" },
+                { label: "Atrasos", value: 280, color: "#F59E0B" },
+                { label: "Ausentes", value: 120, color: "#EF4444" }
+              ]
+            }
+          ]
+        }
+      ]
     });
   });
 
@@ -138,12 +147,69 @@ function createDashboardRouter(requireAuth) {
   router.post("/widget/bar-daily", requireAuth, (_req, res) => {
     const days = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
     return res.json({
-      data: {
-        series: [
-          { name: "Entradas", data: days.map((d) => ({ type: d, value: 110 + Math.floor(Math.random() * 40) })) },
-          { name: "Ausentes", data: days.map((d) => ({ type: d, value: 5 + Math.floor(Math.random() * 20) })) },
-        ],
-      },
+      data: [
+        {
+          type: "bar",
+          props: {
+            isStacked: true,
+            series_config: [
+              {
+                key: "value_1",
+                label: "Minutos de Retraso",
+                color: "#0091ec"
+              },
+              {
+                key: "value_2",
+                label: "Total Ausencias",
+                color: "#adeccd"
+              }
+            ],
+            series: [
+              {
+                label: "Operaciones",
+                value_1: 845,
+                value_2: 120
+              },
+              {
+                label: "Logística",
+                value_1: 620,
+                value_2: 80
+              },
+              {
+                label: "Ventas",
+                value_1: 315,
+                value_2: 30
+              },
+              {
+                label: "Administración",
+                value_1: 120,
+                value_2: 10
+              }
+            ]
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Total Minutos Perdidos",
+            value: 1900
+          },
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Total Ausencias",
+            value: 240
+          },
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Foco de Atención (Retrasos)",
+            value: "Operaciones"
+          }
+        }
+      ]
     });
   });
 
@@ -159,30 +225,69 @@ function createDashboardRouter(requireAuth) {
   });
 
   router.post("/widget/area-weekly", requireAuth, (_req, res) => {
-    const weeks = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"];
-    const base = new Date();
 
     return res.json({
-      data: {
-        series: [
-          {
-            name: "Presentes",
-            data: weeks.map((w, i) => {
-              const d = new Date(base);
-              d.setDate(d.getDate() - (3 - i) * 7);
-              return { type: w, value: 120 + Math.floor(Math.random() * 30), date: d.toISOString().slice(0, 10) };
-            }),
+      data: [
+        {
+          type: "area",
+          props: {
+            series_config: [
+              {
+                key: "value_1",
+                label: "Horas Extras (Total)",
+                color: "#adeccd"
+              }
+            ],
+            series: [
+              {
+                label: "01 Jul",
+                value_1: 105
+              },
+              {
+                label: "08 Jul",
+                value_1: 145
+              },
+              {
+                label: "15 Jul",
+                value_1: 110
+              },
+              {
+                label: "22 Jul",
+                value_1: 180
+              },
+              {
+                label: "29 Jul",
+                value_1: 95
+              },
+              {
+                label: "05 Ago",
+                value_1: 105
+              }
+            ]
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Total Acumulado",
+            value: 755
           },
-          {
-            name: "Ausentes",
-            data: weeks.map((w, i) => {
-              const d = new Date(base);
-              d.setDate(d.getDate() - (3 - i) * 7);
-              return { type: w, value: 10 + Math.floor(Math.random() * 15), date: d.toISOString().slice(0, 10) };
-            }),
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Promedio Semanal",
+            value: 125.8
           },
-        ],
-      },
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Pico Máximo",
+            value: "Semana 22 Jul"
+          },
+        }
+      ]
     });
   });
 
@@ -287,43 +392,269 @@ function createDashboardRouter(requireAuth) {
     });
   });
 
-  router.post("/widget/eficiencia-operativa", requireAuth, (_req, res) => {
-    // Eje X: Meses históricos correspondientes al gráfico
-    const days = ["Mie", "Jue", "Vie", "Sab", "Dom", "Lun", "Mar"];
-
-    // Valores extraídos del wireframe
-    const evolutionDay = [20, 15, 18, 22, 25, 30, 28];
+  router.post("/widget/asistencia-desglose", requireAuth, (_req, res) => {
 
     return res.json({
-      data: {
-        metrics: {
-          summary: {
-            type: "kpi",
-            label: "Pendientes de resolucion",
-            value: 112,
-            context: "inconsistencias (Acumulado Semana)",
-          },
-          distribution_breakdown: {
-            label: "Sin salida",
-            value: 82,
-            absolete_value: 92,
-            color: "#F97316",
-          },
-        },
-        series: [
-          {
-            label: "Volumen Total",
-            yAxisId: "left",       // Escala principal (ej. 0 a 1000)
-            color: "#4A90E2",      // Azul corporativo
-            data: days.map((day, index) => ({
-              type: day,       // Se mapea al Eje X (Categoría)
-              value: evolutionDay[index],
-            })),
+      data: [
+
+        {
+          type: "bar",
+          props: {
+            series_config: [
+              {
+                key: "value_1",
+                label: "Empleados Presentes",
+                color: "#adeccd"
+              },
+              {
+                key: "value_2",
+                label: "Empleados Ausentes",
+                color: "#0091ec"
+              }
+            ],
+            series: [
+              {
+                label: "Operaciones",
+                value_1: 310,
+                value_2: 24
+              },
+              {
+                label: "Logística",
+                value_1: 185,
+                value_2: 18
+              },
+              {
+                label: "Ventas",
+                value_1: 150,
+                value_2: 12
+              },
+              {
+                label: "Administración",
+                value_1: 75,
+                value_2: 5
+              }
+            ]
           }
-        ],
-      }
+        },
+        {
+          type: "gauge",
+          props: {
+            label: "Asistencia Global (Hoy)",
+            value: 92.4,
+            context: "720 de 779 empleados presentes",
+            unit: "%",
+            color: "#adeccd"
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Total Ausencias Hoy",
+            value: 59
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Foco de Atención (Más Ausencias)",
+            value: "Operaciones"
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Mejor Asistencia",
+            value: "Administración"
+          }
+        }
+      ]
     });
   });
+
+  router.post("/widget/area-overtime", requireAuth, (_req, res) => {
+    return res.json({
+      data: [
+        {
+          type: "area",
+          props: {
+            series_config: [
+              {
+                key: "value_1",
+                label: "Horas Extras Generadas",
+                color: "#F59E0B"
+              }
+            ],
+            series: [
+              {
+                label: "Semana 1",
+                value_1: 120
+              },
+              {
+                label: "Semana 2",
+                value_1: 150
+              },
+              {
+                label: "Semana 3",
+                value_1: 90
+              },
+              {
+                label: "Semana 4",
+                value_1: 140
+              }
+            ]
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Total Horas Extras (Mes)",
+            value: 500
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Promedio Semanal",
+            value: 125
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Semana Crítica (Pico)",
+            value: "Semana 2"
+          }
+        }
+      ]
+    });
+  });
+
+  router.post("/widget/monitoreo-hardware", requireAuth, (_req, res) => {
+    return res.json({
+      data: [
+        {
+          type: "gauge",
+          props: {
+            label: "Dispositivos en Línea",
+            value: 95,
+            unit: "%",
+            color: "#22C55E"
+          }
+        },
+        {
+          type: "trend",
+          props: {
+            label: "Estabilidad vs Mes Anterior",
+            value: 2,
+            unit: "%",
+            direction: "up",
+            color: "#22C55E"
+          }
+        },
+        {
+          type: "distribution",
+          props: [
+            {
+              key: "total",
+              label: "TOTAL DISPOSITIVOS INSTALADOS",
+              value: 200
+            },
+            {
+              key: "activos",
+              label: "ACTIVOS Y SINCRONIZANDO",
+              value: 190
+            },
+            {
+              key: "distribution",
+              type: "distribution",
+              label: "Estado de Red",
+              segments: [
+                { label: "Online", value: 190, color: "#22C55E" },
+                { label: "Falla de Sincronización", value: 6, color: "#F59E0B" },
+                { label: "Offline (Caídos)", value: 4, color: "#EF4444" }
+              ]
+            }
+          ]
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Equipos que requieren Soporte Hoy",
+            value: 10
+          }
+        }
+      ]
+    });
+  });
+
+  router.post("/widget/fugas-tiempo-combinadas", requireAuth, (_req, res) => {
+    return res.json({
+      data: [
+        {
+          type: "bar",
+          props: {
+            isStacked: true,
+            series_config: [
+              {
+                key: "value_1",
+                label: "Llegadas Tarde (Min)",
+                color: "#0091ec"
+              },
+              {
+                key: "value_2",
+                label: "Salidas Tempranas (Min)",
+                color: "#adeccd"
+              }
+            ],
+            series: [
+              {
+                label: "Sucursal Norte",
+                value_1: 420,
+                value_2: 180
+              },
+              {
+                label: "Sucursal Sur",
+                value_1: 310,
+                value_2: 90
+              },
+              {
+                label: "Sucursal Este",
+                value_1: 200,
+                value_2: 45
+              },
+              {
+                label: "Sucursal Oeste",
+                value_1: 150,
+                value_2: 30
+              }
+            ]
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Total Tiempo Perdido",
+            value: "1425 Min"
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Infracción Principal",
+            value: "Llegadas Tarde (1080 Min)"
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            label: "Sucursal Crítica",
+            value: "Norte"
+          }
+        }
+      ]
+    });
+  });
+
 
   router.get("/dashboards-list", requireAuth, (_req, res) => {
     const { items } = readDashboards();
@@ -395,17 +726,20 @@ function createDashboardRouter(requireAuth) {
     return res.json({
       data: {
         widgets: [
-          { id: "kpi-present", type: "kpi", subtype: "kpi", title: "Presentes Hoy", endpoint: "/widget/kpi-present", path_widget: "/widget/kpi-present", description: "Total de empleados presentes hoy", filters: WIDGET_FILTERS },
-          { id: "kpi-absent", type: "kpi", subtype: "kpi", title: "Ausentes Hoy", endpoint: "/widget/kpi-absent", path_widget: "/widget/kpi-absent", description: "Total de empleados ausentes hoy", filters: WIDGET_FILTERS },
-          { id: "kpi-late", type: "kpi", subtype: "kpi", title: "Tardanzas", endpoint: "/widget/kpi-late", path_widget: "/widget/kpi-late", description: "Empleados con tardanza hoy", filters: WIDGET_FILTERS },
-          { id: "bar-daily", type: "chart", subtype: "bar", title: "Asistencia Diaria", endpoint: "/widget/bar-daily", path_widget: "/widget/bar-daily", stylized: "bar-group", description: "Asistencia por dia (ultimos 7 dias)", filters: WIDGET_FILTERS },
-          { id: "bar-weekly", type: "chart", subtype: "bar", title: "Asistencia Semanal", endpoint: "/widget/bar-weekly", path_widget: "/widget/bar-weekly", stylized: "bar-basic", description: "Asistencia por semana (ultimas 4 sem)", filters: WIDGET_FILTERS },
-          { id: "area-weekly", type: "chart", subtype: "area", title: "Tendencia Semanal", endpoint: "/widget/area-weekly", path_widget: "/widget/area-weekly", stylized: "none", description: "Tendencia de asistencia semanal", filters: WIDGET_FILTERS },
-          { id: "pie-absence", type: "chart", subtype: "pie", title: "Distribucion de Ausencias", endpoint: "/widget/pie-absence", path_widget: "/widget/pie-absence", description: "Distribucion por tipo de ausencia", filters: WIDGET_FILTERS },
-          { id: "inactive-users", type: "chart", subtype: "table", title: "Usuarios Inactivos", endpoint: "/widget/inactive-users", path_widget: "/widget/inactive-users", description: "Lista de usuarios inactivos recientemente", filters: WIDGET_FILTERS },
-          { id: "kpi-coverage", type: "kpi", subtype: "kpi", title: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage", path_widget: "/widget/kpi-coverage", description: "Cobertura de Turno en Tiempo Real", filters: WIDGET_FILTERS },
-          { id: "bar-methods", type: "chart", subtype: "bar", title: "Distribución de Métodos de Registro", endpoint: "/widget/bar-methods", path_widget: "/widget/bar-methods", stylized: "bar-group", description: "Distribución de métodos de registro (últimas 4 semanas)", filters: WIDGET_FILTERS },
-          { id: "eficiencia-operativa", type: "chart", subtype: "bar", title: "Eficiencia Operativa", endpoint: "/widget/eficiencia-operativa", path_widget: "/widget/eficiencia-operativa", description: "Eficiencia Operativa (últimos 9 meses)", filters: WIDGET_FILTERS },
+          // { id: "kpi-present", type: "kpi", subtype: "kpi", title: "Presentes Hoy", endpoint: "/widget/kpi-present", path_widget: "/widget/kpi-present", description: "Total de empleados presentes hoy", filters: WIDGET_FILTERS },
+          // { id: "kpi-absent", type: "kpi", subtype: "kpi", title: "Ausentes Hoy", endpoint: "/widget/kpi-absent", path_widget: "/widget/kpi-absent", description: "Total de empleados ausentes hoy", filters: WIDGET_FILTERS },
+          // { id: "kpi-late", type: "kpi", subtype: "kpi", title: "Tardanzas", endpoint: "/widget/kpi-late", path_widget: "/widget/kpi-late", description: "Empleados con tardanza hoy", filters: WIDGET_FILTERS },
+          { id: "bar-daily", label: "Asistencia Diaria", endpoint: "/widget/bar-daily", filters: WIDGET_FILTERS },
+          // { id: "bar-weekly", type: "chart", subtype: "bar", title: "Asistencia Semanal", endpoint: "/widget/bar-weekly", path_widget: "/widget/bar-weekly", stylized: "bar-basic", description: "Asistencia por semana (ultimas 4 sem)", filters: WIDGET_FILTERS },
+          { id: "area-weekly", label: "Evolución de Horas Extras", endpoint: "/widget/area-weekly", filters: WIDGET_FILTERS },
+          // { id: "pie-absence", type: "chart", subtype: "pie", title: "Distribucion de Ausencias", endpoint: "/widget/pie-absence", path_widget: "/widget/pie-absence", description: "Distribucion por tipo de ausencia", filters: WIDGET_FILTERS },
+          // { id: "inactive-users", type: "chart", subtype: "table", title: "Usuarios Inactivos", endpoint: "/widget/inactive-users", path_widget: "/widget/inactive-users", description: "Lista de usuarios inactivos recientemente", filters: WIDGET_FILTERS },
+          { id: "kpi-coverage", label: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage", filters: WIDGET_FILTERS },
+          // { id: "bar-methods", type: "chart", subtype: "bar", title: "Distribución de Métodos de Registro", endpoint: "/widget/bar-methods", path_widget: "/widget/bar-methods", stylized: "bar-group", description: "Distribución de métodos de registro (últimas 4 semanas)", filters: WIDGET_FILTERS },
+          { id: "asistencia-desglose", label: "Asistencia Diaria y Desglose Operativo", endpoint: "/widget/asistencia-desglose", filters: WIDGET_FILTERS },
+          { id: "area-overtime", label: "Análisis de Horas Extras (Sobrecostos de Nómina)", endpoint: "/widget/area-overtime", filters: WIDGET_FILTERS },
+          { id: "monitoreo-hardware", label: "Monitoreo de Hardware (Lectores Biométricos)", endpoint: "/widget/monitoreo-hardware", filters: WIDGET_FILTERS },
+          { id: "fugas-tiempo-combinadas", label: "Fugas de Tiempo Combinadas por Sucursal", endpoint: "/widget/fugas-tiempo-combinadas", filters: WIDGET_FILTERS }
         ],
         global_filters: {},
       },
