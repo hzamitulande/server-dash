@@ -19,8 +19,15 @@ function buildAttendanceWidgets() {
     { id: "w-area-overtime", label: "Análisis de Horas Extras (Sobrecostos de Nómina)", endpoint: "/widget/area-overtime" },
     { id: "w-monitoreo-hardware", label: "Monitoreo de Hardware (Lectores Biométricos)", endpoint: "/widget/monitoreo-hardware" },
     { id: "w-fugas-tiempo-combinadas", label: "Fugas de Tiempo Combinadas por Sucursal", endpoint: "/widget/fugas-tiempo-combinadas" },
+    { id: "w-puntualidad", label: "Control de Puntualidad Diaria", endpoint: "/widget/puntualidad" },
+    { id: "w-table-absent", label: "Listado de Ausentes", endpoint: "/widget/table-absent" },
+    { id: "w-kpi-coverage-2", label: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage-2" },
+    { id: "w-kpi-coverage-3", label: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage-3" },
+    { id: "w-close", label: "Cerrar Turno", endpoint: "/widget/close" }
   ];
 }
+
+const updateAt = new Date();
 
 function createDashboardRouter(requireAuth) {
   const router = express.Router();
@@ -59,12 +66,13 @@ function createDashboardRouter(requireAuth) {
           props: {
             label: "Cobertura en Tiempo Real",
             value: 87,
+            colors: ["#EF4444", "#F59E0B", "#22C55E"],
           }
         },
         {
           type: "trend",
           props: {
-            label: "Tendencia",
+            label: "Respecto a ayer",
             value: 3,
             unit: "%",
             direction: "up",
@@ -95,8 +103,14 @@ function createDashboardRouter(requireAuth) {
               ]
             }
           ]
+        },
+        {
+          "metaData": {
+            "updateAt": new Date().toISOString()
+          }
         }
-      ]
+      ],
+
     });
   });
 
@@ -291,6 +305,39 @@ function createDashboardRouter(requireAuth) {
     });
   });
 
+  router.post("/widget/puntualidad", requireAuth, (_req, res) => {
+
+    return res.json({
+      data: [
+        {
+          type: "distribution",
+          props: [
+            {
+              key: "less_than_15",
+              label: "Empleador llegados tarde hoy",
+              value: 12
+            },
+            {
+              key: "impact_total",
+              label: "Impacto Total",
+              value: "4 horas 30 min."
+            },
+            {
+              key: "distribution",
+              type: "distribution",
+              label: "Distribución de retraso",
+              segments: [
+                { label: "con 15min anticipacion", value: 5, color: "#22C55E" },
+                { label: "con 5min anticipacion - 5min tarde", value: 4, color: "#F59E0B" },
+                { label: "con 30min tarde", value: 3, color: "#EF4444" }
+              ]
+            }
+          ]
+        }
+      ],
+    });
+  });
+
   router.post("/widget/pie-absence", requireAuth, (_req, res) => {
     return res.json({
       data: {
@@ -396,10 +443,10 @@ function createDashboardRouter(requireAuth) {
 
     return res.json({
       data: [
-
         {
           type: "bar",
           props: {
+            isStacked: true,
             series_config: [
               {
                 key: "value_1",
@@ -437,13 +484,36 @@ function createDashboardRouter(requireAuth) {
           }
         },
         {
-          type: "gauge",
+          "type": "gauge",
+          "props": {
+            "label": "Adopci\u00f3n Biom\u00e9trica (Mes)",
+            "value": 12.5,
+            "unit": "%",
+            "context": "13 biom\u00e9tricas de 104 totales (12.5%)",
+            "colorStops": [
+              {
+                "limit": 10,
+                "color": "#FF6B6B"
+              },
+              {
+                "limit": 80,
+                "color": "#FFC857"
+              },
+              {
+                "limit": 100,
+                "color": "#2EC4B6"
+              }
+            ]
+          }
+        },
+        {
+          type: "trend",
           props: {
-            label: "Asistencia Global (Hoy)",
-            value: 92.4,
-            context: "720 de 779 empleados presentes",
+            label: "Respecto a ayer",
+            value: 1.2,
             unit: "%",
-            color: "#adeccd"
+            direction: "up",
+            color: "#22C55E"
           }
         },
         {
@@ -456,8 +526,9 @@ function createDashboardRouter(requireAuth) {
         {
           type: "kpi",
           props: {
-            label: "Foco de Atención (Más Ausencias)",
-            value: "Operaciones"
+            "label": "widgets.pending_resolution",
+            "context": "widgets.inconsistencies_weekly",
+            "value": "Operaciones"
           }
         },
         {
@@ -466,8 +537,14 @@ function createDashboardRouter(requireAuth) {
             label: "Mejor Asistencia",
             value: "Administración"
           }
+        },
+        {
+          "metaData": {
+            "updateAt": new Date().toISOString()
+          }
         }
-      ]
+      ],
+
     });
   });
 
@@ -532,50 +609,6 @@ function createDashboardRouter(requireAuth) {
   router.post("/widget/monitoreo-hardware", requireAuth, (_req, res) => {
     return res.json({
       data: [
-        {
-          type: "gauge",
-          props: {
-            label: "Dispositivos en Línea",
-            value: 95,
-            unit: "%",
-            color: "#22C55E"
-          }
-        },
-        {
-          type: "trend",
-          props: {
-            label: "Estabilidad vs Mes Anterior",
-            value: 2,
-            unit: "%",
-            direction: "up",
-            color: "#22C55E"
-          }
-        },
-        {
-          type: "distribution",
-          props: [
-            {
-              key: "total",
-              label: "TOTAL DISPOSITIVOS INSTALADOS",
-              value: 200
-            },
-            {
-              key: "activos",
-              label: "ACTIVOS Y SINCRONIZANDO",
-              value: 190
-            },
-            {
-              key: "distribution",
-              type: "distribution",
-              label: "Estado de Red",
-              segments: [
-                { label: "Online", value: 190, color: "#22C55E" },
-                { label: "Falla de Sincronización", value: 6, color: "#F59E0B" },
-                { label: "Offline (Caídos)", value: 4, color: "#EF4444" }
-              ]
-            }
-          ]
-        },
         {
           type: "kpi",
           props: {
@@ -647,14 +680,264 @@ function createDashboardRouter(requireAuth) {
         {
           type: "kpi",
           props: {
-            label: "Sucursal Crítica",
-            value: "Norte"
+            "label": "widgets.pending_resolution",
+            "value": 11,
+            "context": "widgets.inconsistencies_weekly"
           }
         }
       ]
     });
   });
 
+  router.post("/widget/table-absent", requireAuth, (_req, res) => {
+    return res.json({
+      data: [
+        {
+          type: "table",
+          props: {
+            columns: [
+              {
+                key: "name",
+                label: "Nombre"
+              },
+              {
+                key: "date",
+                label: "Fecha"
+              },
+              {
+                key: "status",
+                label: "Estado"
+              }
+            ],
+            rows: [
+              { name: "Juan Pérez", date: "2024-06-01", status: "Ausente", "tooltip": "SRV10" },
+              { name: "María López", date: "2024-06-01", status: "Presente", "tooltip": "SRV11" },
+              { name: "Carlos García", date: "2024-06-01", status: "Ausente", "tooltip": "SRV12" },
+              { name: "Ana Torres", date: "2024-06-01", status: "Presente", "tooltip": "SRV13" },
+              { name: "Luis Fernández", date: "2024-06-01", status: "Ausente", "tooltip": "SRV14" },
+            ]
+          }
+        }
+      ]
+    });
+  });
+
+  router.post("/widget/kpi-coverage-2", requireAuth, (_req, res) => {
+
+    return res.json({
+      data: [
+        {
+          "type": "gauge",
+          "props": {
+            "label": "Adopci\u00f3n Biom\u00e9trica (Mes)",
+            "value": 12.5,
+            "unit": "%",
+            "context": "13 biom\u00e9tricas de 104 totales (12.5%)",
+            "colorStops": [
+              {
+                "limit": 10,
+                "color": "#FF6B6B"
+              },
+              {
+                "limit": 80,
+                "color": "#FFC857"
+              },
+              {
+                "limit": 100,
+                "color": "#2EC4B6"
+              }
+            ]
+          }
+        },
+        {
+          type: "trend",
+          props: {
+            label: "Respecto a ayer",
+            value: 3,
+            unit: "%",
+            direction: "up",
+            color: "#22C55E"
+          }
+        },
+        {
+          type: "distribution",
+          props: [
+            {
+              key: "presentes",
+              label: "EMPLEADOS PRESENTES",
+              value: 2740
+            },
+            {
+              key: "programados",
+              label: "EMPLEADOS PROGRAMADOS",
+              value: 3140
+            },
+            {
+              key: "distribution",
+              type: "distribution",
+              label: "Distribución de Estado",
+              segments: [
+                { label: "A tiempo", value: 2740, color: "#22C55E" },
+                { label: "Atrasos", value: 280, color: "#F59E0B" },
+                { label: "Ausentes", value: 120, color: "#EF4444" }
+              ]
+            }
+          ]
+        },
+        {
+          "metaData": {
+            "updateAt": new Date().toISOString()
+          }
+        }
+      ],
+    });
+  });
+
+  router.post("/widget/kpi-coverage-3", requireAuth, (_req, res) => {
+    return res.json({
+      data: [
+        {
+          "type": "gauge",
+          "props": {
+            "label": "Adopci\u00f3n Biom\u00e9trica (Mes)",
+            "value": 12.5,
+            "unit": "%",
+            "context": "13 biom\u00e9tricas de 104 totales (12.5%)",
+            "colorStops": [
+              {
+                "limit": 10,
+                "color": "#FF6B6B"
+              },
+              {
+                "limit": 80,
+                "color": "#FFC857"
+              },
+              {
+                "limit": 100,
+                "color": "#2EC4B6"
+              }
+            ]
+          }
+        },
+        {
+          type: "trend",
+          props: {
+            label: "Respecto a ayer",
+            value: 3,
+            unit: "%",
+            direction: "up",
+            color: "#22C55E"
+          }
+        },
+        {
+          type: "distribution",
+          props: [
+            {
+              key: "presentes",
+              label: "EMPLEADOS PRESENTES",
+              value: 2740
+            },
+            {
+              key: "programados",
+              label: "EMPLEADOS PROGRAMADOS",
+              value: 3140
+            },
+            {
+              key: "distribution",
+              type: "distribution",
+              label: "Distribución de Estado",
+              segments: [
+                { label: "A tiempo", value: 2740, color: "#22C55E" },
+                { label: "Atrasos", value: 280, color: "#F59E0B" },
+                { label: "Ausentes", value: 120, color: "#EF4444" }
+              ]
+            }
+          ]
+        },
+        {
+          "metaData": {
+            "updateAt": new Date().toISOString()
+          }
+        }
+      ],
+
+    });
+  });
+
+  router.post("/widget/close", requireAuth, (_req, res) => {
+    return res.json({
+      data: [
+        {
+          type: "bar",
+          props: {
+            series_config: [
+              {
+                key: "value_1",
+                label: "Llegadas Tarde (Min)",
+                color: "#0091ec"
+              },
+              {
+                key: "value_2",
+                label: "Salidas Tempranas (Min)",
+                color: "#adeccd"
+              }
+            ],
+            series: [
+              {
+                label: "Sucursal Norte",
+                value_1: 420,
+                value_2: 180
+              },
+              {
+                label: "Sucursal Sur",
+                value_1: 310,
+                value_2: 90
+              },
+              {
+                label: "Sucursal Este",
+                value_1: 200,
+                value_2: 45
+              },
+              {
+                label: "Sucursal Oeste",
+                value_1: 150,
+                value_2: 30
+              }
+            ]
+          }
+        },
+        {
+          type: "kpi",
+          props: {
+            "label": "widgets.pending_resolution",
+            "value": 11,
+            "context": "widgets.inconsistencies_weekly"
+          }
+        },
+        {
+          type: "distribution",
+          props: [
+            {
+              key: "distribution",
+              type: "distribution",
+              label: "Distribución de Estado",
+              segments: [
+                { label: "sin salida", value: 92, valueLabel: "casos", color: "#22C55E" },
+                { label: "con retraso", value: 0, valueLabel: "casos", color: "#F59E0B" },
+                { label: "sin entrada", value: 0, valueLabel: "casos", color: "#EF4444" }
+              ]
+            }
+          ]
+        },
+        {
+          "metaData": {
+            "updateAt": new Date().toISOString()
+          }
+        }
+      ],
+
+    });
+  });
 
   router.get("/dashboards-list", requireAuth, (_req, res) => {
     const { items } = readDashboards();
@@ -739,7 +1022,12 @@ function createDashboardRouter(requireAuth) {
           { id: "asistencia-desglose", label: "Asistencia Diaria y Desglose Operativo", endpoint: "/widget/asistencia-desglose", filters: WIDGET_FILTERS },
           { id: "area-overtime", label: "Análisis de Horas Extras (Sobrecostos de Nómina)", endpoint: "/widget/area-overtime", filters: WIDGET_FILTERS },
           { id: "monitoreo-hardware", label: "Monitoreo de Hardware (Lectores Biométricos)", endpoint: "/widget/monitoreo-hardware", filters: WIDGET_FILTERS },
-          { id: "fugas-tiempo-combinadas", label: "Fugas de Tiempo Combinadas por Sucursal", endpoint: "/widget/fugas-tiempo-combinadas", filters: WIDGET_FILTERS }
+          { id: "fugas-tiempo-combinadas", label: "Fugas de Tiempo Combinadas por Sucursal", endpoint: "/widget/fugas-tiempo-combinadas", filters: WIDGET_FILTERS },
+          { id: "w-puntualidad", label: "Control de Puntualidad Diaria", endpoint: "/widget/puntualidad", filters: WIDGET_FILTERS },
+          { id: "w-table-absent", label: "Listado de Ausentes", endpoint: "/widget/table-absent", filters: WIDGET_FILTERS },
+          { id: "kpi-coverage-2", label: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage-2", filters: WIDGET_FILTERS },
+          { id: "kpi-coverage-3", label: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage-3", filters: WIDGET_FILTERS },
+          { id: "w-close", label: "Cerrar Turno", endpoint: "/widget/close", filters: WIDGET_FILTERS },
         ],
         global_filters: {},
       },

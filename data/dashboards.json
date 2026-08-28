@@ -1,13 +1,13 @@
 {
   "items": [
     {
-      "id": "778745a4-ae02-4998-84c5-7df926999c81",
-      "name": "Nuevor",
+      "id": "b8efe8f9-f07e-485d-aae9-1b78d665e567",
+      "name": "Pruaba nuevo",
       "layout_config": [
         {
-          "id": "asistencia-desglose",
-          "label": "Asistencia Diaria y Desglose Operativo",
-          "endpoint": "/widget/asistencia-desglose",
+          "id": "w-close",
+          "label": "Cerrar Turno",
+          "endpoint": "/widget/close",
           "filters": {
             "name_id": {
               "type": "string",
@@ -26,13 +26,40 @@
               "label": "filter.identification",
               "endpoint": "/filter/identification",
               "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
             }
           }
         },
         {
-          "id": "area-weekly",
-          "label": "Evolución de Horas Extras",
-          "endpoint": "/widget/area-weekly",
+          "id": "kpi-coverage-3",
+          "label": "Cobertura de Turno en Tiempo Real (Presentismo)",
+          "endpoint": "/widget/kpi-coverage-3",
           "filters": {
             "name_id": {
               "type": "string",
@@ -51,6 +78,85 @@
               "label": "filter.identification",
               "endpoint": "/filter/identification",
               "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "kpi-coverage-2",
+          "label": "Cobertura de Turno en Tiempo Real (Presentismo)",
+          "endpoint": "/widget/kpi-coverage-2",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
             }
           }
         },
@@ -76,13 +182,40 @@
               "label": "filter.identification",
               "endpoint": "/filter/identification",
               "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
             }
           }
         },
         {
-          "id": "bar-daily",
-          "label": "Asistencia Diaria",
-          "endpoint": "/widget/bar-daily",
+          "id": "asistencia-desglose",
+          "label": "Asistencia Diaria y Desglose Operativo",
+          "endpoint": "/widget/asistencia-desglose",
           "filters": {
             "name_id": {
               "type": "string",
@@ -101,87 +234,39 @@
               "label": "filter.identification",
               "endpoint": "/filter/identification",
               "required": false
-            }
-          }
-        },
-        {
-          "id": "area-overtime",
-          "label": "Análisis de Horas Extras (Sobrecostos de Nómina)",
-          "endpoint": "/widget/area-overtime",
-          "filters": {
-            "name_id": {
-              "type": "string",
-              "label": "filter.name",
-              "endpoint": "/filter/name",
-              "required": false
             },
-            "branch_office_id": {
-              "type": "string",
-              "label": "filter.branch_office",
-              "endpoint": "/filter/branch-office",
-              "required": false
-            },
-            "identification_id": {
-              "type": "string",
-              "label": "filter.identification",
-              "endpoint": "/filter/identification",
-              "required": false
-            }
-          }
-        },
-        {
-          "id": "monitoreo-hardware",
-          "label": "Monitoreo de Hardware (Lectores Biométricos)",
-          "endpoint": "/widget/monitoreo-hardware",
-          "filters": {
-            "name_id": {
-              "type": "string",
-              "label": "filter.name",
-              "endpoint": "/filter/name",
-              "required": false
-            },
-            "branch_office_id": {
-              "type": "string",
-              "label": "filter.branch_office",
-              "endpoint": "/filter/branch-office",
-              "required": false
-            },
-            "identification_id": {
-              "type": "string",
-              "label": "filter.identification",
-              "endpoint": "/filter/identification",
-              "required": false
-            }
-          }
-        },
-        {
-          "id": "fugas-tiempo-combinadas",
-          "label": "Fugas de Tiempo Combinadas por Sucursal",
-          "endpoint": "/widget/fugas-tiempo-combinadas",
-          "filters": {
-            "name_id": {
-              "type": "string",
-              "label": "filter.name",
-              "endpoint": "/filter/name",
-              "required": false
-            },
-            "branch_office_id": {
-              "type": "string",
-              "label": "filter.branch_office",
-              "endpoint": "/filter/branch-office",
-              "required": false
-            },
-            "identification_id": {
-              "type": "string",
-              "label": "filter.identification",
-              "endpoint": "/filter/identification",
-              "required": false
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
             }
           }
         }
       ],
-      "created_at": "2026-08-05T16:04:24.188Z",
-      "updated_at": "2026-08-06T16:46:19.586Z"
+      "created_at": "2026-08-13T23:14:56.143Z",
+      "updated_at": "2026-08-13T23:14:56.143Z"
     }
   ]
 }

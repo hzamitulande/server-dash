@@ -17,6 +17,33 @@ const WIDGET_FILTERS = {
     endpoint: "/filter/identification",
     required: false,
   },
+  server_id: {
+    key: "server_id",
+    label: "filter.server",
+    type: "select",
+    options: [
+      {
+        id: "9",
+        name: "Server 9"
+      },
+      {
+        id: "10",
+        name: "Server 10"
+      },
+      {
+        id: "12",
+        name: "Server 12"
+      },
+      {
+        id: "18",
+        name: "Server 18"
+      },
+      {
+        id: "21",
+        name: "Server 21"
+      }
+    ]
+  }
 };
 
 const BRANCHES = [
