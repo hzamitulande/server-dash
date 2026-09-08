@@ -728,26 +728,24 @@ function createDashboardRouter(requireAuth) {
       data: [
         {
           "type": "gauge",
-          "props": {
-            "label": "Adopci\u00f3n Biom\u00e9trica (Mes)",
-            "value": 12.5,
-            "unit": "%",
-            "context": "13 biom\u00e9tricas de 104 totales (12.5%)",
-            "colorStops": [
-              {
-                "limit": 10,
-                "color": "#FF6B6B"
-              },
-              {
-                "limit": 80,
-                "color": "#FFC857"
-              },
-              {
-                "limit": 100,
-                "color": "#2EC4B6"
-              }
-            ]
-          }
+           "props": {
+                "label": "widgets.biometric_adoption_month",
+                "value": 50.6,
+                "colorStops": [
+                    {
+                        "limit": 84,
+                        "color": "#ef4444"
+                    },
+                    {
+                        "limit": 94,
+                        "color": "#eab308"
+                    },
+                    {
+                        "limit": 100,
+                        "color": "#22c55e"
+                    }
+                ]
+            }
         },
         {
           type: "trend",
@@ -798,26 +796,24 @@ function createDashboardRouter(requireAuth) {
       data: [
         {
           "type": "gauge",
-          "props": {
-            "label": "Adopci\u00f3n Biom\u00e9trica (Mes)",
-            "value": 12.5,
-            "unit": "%",
-            "context": "13 biom\u00e9tricas de 104 totales (12.5%)",
-            "colorStops": [
-              {
-                "limit": 10,
-                "color": "#FF6B6B"
-              },
-              {
-                "limit": 80,
-                "color": "#FFC857"
-              },
-              {
-                "limit": 100,
-                "color": "#2EC4B6"
-              }
-            ]
-          }
+           "props": {
+                "label": "widgets.biometric_adoption_month",
+                "value": 99.6,
+                "colorStops": [
+                    {
+                        "limit": 84,
+                        "color": "#ef4444"
+                    },
+                    {
+                        "limit": 94,
+                        "color": "#eab308"
+                    },
+                    {
+                        "limit": 100,
+                        "color": "#22c55e"
+                    }
+                ]
+            }
         },
         {
           type: "trend",
