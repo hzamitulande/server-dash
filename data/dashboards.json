@@ -1,13 +1,14 @@
 {
   "items": [
     {
-      "id": "b8efe8f9-f07e-485d-aae9-1b78d665e567",
-      "name": "Pruaba nuevo",
+      "id": "703c6c14-f7a6-458e-98bd-5e664da03585",
+      "name": "AgentUI",
       "layout_config": [
         {
-          "id": "w-close",
-          "label": "Cerrar Turno",
-          "endpoint": "/widget/close",
+          "id": "area-overtime",
+          "label": "Costo Cloud y Eficiencia",
+          "endpoint": "/widget/area-overtime",
+          "category": "finops",
           "filters": {
             "name_id": {
               "type": "string",
@@ -57,9 +58,63 @@
           }
         },
         {
-          "id": "kpi-coverage-3",
-          "label": "Cobertura de Turno en Tiempo Real (Presentismo)",
-          "endpoint": "/widget/kpi-coverage-3",
+          "id": "fugas-tiempo-combinadas",
+          "label": "Incidentes por Dominio",
+          "endpoint": "/widget/fugas-tiempo-combinadas",
+          "category": "engineering",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "w-puntualidad",
+          "label": "Pipeline de Despliegue",
+          "endpoint": "/widget/puntualidad",
+          "category": "engineering",
           "filters": {
             "name_id": {
               "type": "string",
@@ -110,8 +165,9 @@
         },
         {
           "id": "kpi-coverage-2",
-          "label": "Cobertura de Turno en Tiempo Real (Presentismo)",
+          "label": "Calidad de Despliegues",
           "endpoint": "/widget/kpi-coverage-2",
+          "category": "engineering",
           "filters": {
             "name_id": {
               "type": "string",
@@ -161,9 +217,169 @@
           }
         },
         {
-          "id": "kpi-coverage",
-          "label": "Cobertura de Turno en Tiempo Real (Presentismo)",
-          "endpoint": "/widget/kpi-coverage",
+          "id": "w-table-absent",
+          "label": "Backlog de Soporte Enterprise",
+          "endpoint": "/widget/table-absent",
+          "category": "support",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "w-close",
+          "label": "Resolucion de Incidentes Criticos",
+          "endpoint": "/widget/close",
+          "category": "support",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "kpi-coverage-3",
+          "label": "Riesgo de Seguridad",
+          "endpoint": "/widget/kpi-coverage-3",
+          "category": "security",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "bar-daily",
+          "label": "Throughput IA por Producto",
+          "endpoint": "/widget/bar-daily",
+          "category": "product",
           "filters": {
             "name_id": {
               "type": "string",
@@ -214,8 +430,168 @@
         },
         {
           "id": "asistencia-desglose",
-          "label": "Asistencia Diaria y Desglose Operativo",
+          "label": "Adopcion de Copilot por Area",
           "endpoint": "/widget/asistencia-desglose",
+          "category": "product",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "monitoreo-hardware",
+          "label": "Capacidad de Clusters GPU",
+          "endpoint": "/widget/monitoreo-hardware",
+          "category": "infrastructure",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "kpi-coverage",
+          "label": "SLA General de Plataforma",
+          "endpoint": "/widget/kpi-coverage",
+          "category": "executive",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "w-widget-pie",
+          "label": "MRR por Linea de Producto",
+          "endpoint": "/widget/widget-pie",
+          "category": "executive",
           "filters": {
             "name_id": {
               "type": "string",
@@ -265,8 +641,448 @@
           }
         }
       ],
-      "created_at": "2026-08-13T23:14:56.143Z",
-      "updated_at": "2026-08-13T23:14:56.143Z"
+      "created_at": "2026-10-07T13:52:29.589Z",
+      "updated_at": "2026-10-07T17:24:59.050Z"
+    },
+    {
+      "id": "f6a08463-3ac3-4d90-a9c3-a76cd8876d16",
+      "name": "Consola de agentes",
+      "layout_config": [
+        {
+          "id": "bar-daily",
+          "label": "Throughput IA por Producto",
+          "endpoint": "/widget/bar-daily",
+          "category": "product",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "asistencia-desglose",
+          "label": "Adopcion de Copilot por Area",
+          "endpoint": "/widget/asistencia-desglose",
+          "category": "product",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "area-weekly",
+          "label": "Latencia p95 Semanal",
+          "endpoint": "/widget/area-weekly",
+          "category": "infrastructure",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "area-overtime",
+          "label": "Costo Cloud y Eficiencia",
+          "endpoint": "/widget/area-overtime",
+          "category": "finops",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "created_at": "2026-10-07T15:17:24.319Z",
+      "updated_at": "2026-10-07T15:18:00.420Z"
+    },
+    {
+      "id": "3f2e9134-faa8-4dde-803b-7a1013e640b0",
+      "name": "Consola de agentes",
+      "layout_config": [
+        {
+          "id": "bar-daily",
+          "label": "Throughput IA por Producto",
+          "endpoint": "/widget/bar-daily",
+          "category": "product",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "w-puntualidad",
+          "label": "Pipeline de Despliegue",
+          "endpoint": "/widget/puntualidad",
+          "category": "engineering",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "fugas-tiempo-combinadas",
+          "label": "Incidentes por Dominio",
+          "endpoint": "/widget/fugas-tiempo-combinadas",
+          "category": "engineering",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "w-table-absent",
+          "label": "Backlog de Soporte Enterprise",
+          "endpoint": "/widget/table-absent",
+          "category": "support",
+          "filters": {
+            "name_id": {
+              "type": "string",
+              "label": "filter.name",
+              "endpoint": "/filter/name",
+              "required": false
+            },
+            "branch_office_id": {
+              "type": "string",
+              "label": "filter.branch_office",
+              "endpoint": "/filter/branch-office",
+              "required": false
+            },
+            "identification_id": {
+              "type": "string",
+              "label": "filter.identification",
+              "endpoint": "/filter/identification",
+              "required": false
+            },
+            "server_id": {
+              "key": "server_id",
+              "label": "filter.server",
+              "type": "select",
+              "options": [
+                {
+                  "id": "9",
+                  "name": "Server 9"
+                },
+                {
+                  "id": "10",
+                  "name": "Server 10"
+                },
+                {
+                  "id": "12",
+                  "name": "Server 12"
+                },
+                {
+                  "id": "18",
+                  "name": "Server 18"
+                },
+                {
+                  "id": "21",
+                  "name": "Server 21"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "created_at": "2026-10-08T16:36:30.000Z",
+      "updated_at": "2026-10-08T16:36:30.000Z"
     }
   ]
 }

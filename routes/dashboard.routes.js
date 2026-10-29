@@ -2,913 +2,512 @@ const express = require("express");
 const { randomUUID } = require("crypto");
 const { readDashboards, writeDashboards } = require("../services/store.service");
 const { WIDGET_FILTERS } = require("../services/mock-data.service");
-const { type } = require("os");
 
-function buildAttendanceWidgets() {
+const WIDGET_CATEGORIES = Object.freeze({
+  EXECUTIVE: "executive",
+  ENGINEERING: "engineering",
+  PRODUCT: "product",
+  INFRASTRUCTURE: "infrastructure",
+  SUPPORT: "support",
+  SECURITY: "security",
+  FINOPS: "finops",
+});
+
+const WIDGETS_FOR_ATTENDANCE_ROUTE = Object.freeze([
+  { id: "w-bar-daily", label: "Throughput IA por Producto", endpoint: "/widget/bar-daily", category: WIDGET_CATEGORIES.PRODUCT },
+  { id: "w-area-weekly", label: "Latencia p95 Semanal", endpoint: "/widget/area-weekly", category: WIDGET_CATEGORIES.INFRASTRUCTURE },
+  { id: "w-kpi-coverage", label: "SLA General de Plataforma", endpoint: "/widget/kpi-coverage", category: WIDGET_CATEGORIES.EXECUTIVE },
+  { id: "w-diaria-desglose", label: "Adopcion de Copilot por Area", endpoint: "/widget/asistencia-desglose", category: WIDGET_CATEGORIES.PRODUCT },
+  { id: "w-area-overtime", label: "Costo Cloud y Eficiencia", endpoint: "/widget/area-overtime", category: WIDGET_CATEGORIES.FINOPS },
+  { id: "w-monitoreo-hardware", label: "Capacidad de Clusters GPU", endpoint: "/widget/monitoreo-hardware", category: WIDGET_CATEGORIES.INFRASTRUCTURE },
+  { id: "w-fugas-tiempo-combinadas", label: "Incidentes por Dominio", endpoint: "/widget/fugas-tiempo-combinadas", category: WIDGET_CATEGORIES.ENGINEERING },
+  { id: "w-puntualidad", label: "Pipeline de Despliegue", endpoint: "/widget/puntualidad", category: WIDGET_CATEGORIES.ENGINEERING },
+  { id: "w-table-absent", label: "Backlog de Soporte Enterprise", endpoint: "/widget/table-absent", category: WIDGET_CATEGORIES.SUPPORT },
+  { id: "w-kpi-coverage-2", label: "Calidad de Despliegues", endpoint: "/widget/kpi-coverage-2", category: WIDGET_CATEGORIES.ENGINEERING },
+  { id: "w-kpi-coverage-3", label: "Riesgo de Seguridad", endpoint: "/widget/kpi-coverage-3", category: WIDGET_CATEGORIES.SECURITY },
+  { id: "w-close", label: "Resolucion de Incidentes Criticos", endpoint: "/widget/close", category: WIDGET_CATEGORIES.SUPPORT },
+  { id: "w-widget-pie", label: "MRR por Linea de Producto", endpoint: "/widget/widget-pie", category: WIDGET_CATEGORIES.EXECUTIVE },
+]);
+
+const WIDGETS_FOR_PICKER = Object.freeze([
+  { id: "bar-daily", label: "Throughput IA por Producto", endpoint: "/widget/bar-daily", category: WIDGET_CATEGORIES.PRODUCT },
+  { id: "area-weekly", label: "Latencia p95 Semanal", endpoint: "/widget/area-weekly", category: WIDGET_CATEGORIES.INFRASTRUCTURE },
+  { id: "kpi-coverage", label: "SLA General de Plataforma", endpoint: "/widget/kpi-coverage", category: WIDGET_CATEGORIES.EXECUTIVE },
+  { id: "asistencia-desglose", label: "Adopcion de Copilot por Area", endpoint: "/widget/asistencia-desglose", category: WIDGET_CATEGORIES.PRODUCT },
+  { id: "area-overtime", label: "Costo Cloud y Eficiencia", endpoint: "/widget/area-overtime", category: WIDGET_CATEGORIES.FINOPS },
+  { id: "monitoreo-hardware", label: "Capacidad de Clusters GPU", endpoint: "/widget/monitoreo-hardware", category: WIDGET_CATEGORIES.INFRASTRUCTURE },
+  { id: "fugas-tiempo-combinadas", label: "Incidentes por Dominio", endpoint: "/widget/fugas-tiempo-combinadas", category: WIDGET_CATEGORIES.ENGINEERING },
+  { id: "w-puntualidad", label: "Pipeline de Despliegue", endpoint: "/widget/puntualidad", category: WIDGET_CATEGORIES.ENGINEERING },
+  { id: "w-table-absent", label: "Backlog de Soporte Enterprise", endpoint: "/widget/table-absent", category: WIDGET_CATEGORIES.SUPPORT },
+  { id: "kpi-coverage-2", label: "Calidad de Despliegues", endpoint: "/widget/kpi-coverage-2", category: WIDGET_CATEGORIES.ENGINEERING },
+  { id: "kpi-coverage-3", label: "Riesgo de Seguridad", endpoint: "/widget/kpi-coverage-3", category: WIDGET_CATEGORIES.SECURITY },
+  { id: "w-close", label: "Resolucion de Incidentes Criticos", endpoint: "/widget/close", category: WIDGET_CATEGORIES.SUPPORT },
+  { id: "w-widget-pie", label: "MRR por Linea de Producto", endpoint: "/widget/widget-pie", category: WIDGET_CATEGORIES.EXECUTIVE },
+]);
+
+function withMetaData(blocks) {
   return [
-    // { id: "w-kpi-present", type: "kpi", subtype: "kpi", title: "attendance.kpi.present", endpoint: "/widget/kpi-present" },
-    // { id: "w-kpi-absent", type: "kpi", subtype: "kpi", title: "attendance.kpi.absent", endpoint: "/widget/kpi-absent" },
-    // { id: "w-kpi-late", type: "kpi", subtype: "kpi", title: "attendance.kpi.late", endpoint: "/widget/kpi-late" },
-    { id: "w-bar-daily", label: "attendance.chart.daily", endpoint: "/widget/bar-daily" },
-    { id: "w-area-weekly", label: "Evolución de Horas Extras", endpoint: "/widget/area-weekly" },
-    // { id: "w-pie-absence", type: "chart", subtype: "pie", title: "attendance.chart.absence_distribution", endpoint: "/widget/pie-absence" },
-    // { id: "w-inactive-user", type: "chart", subtype: "table", title: "attendance.chart.inactive_users", endpoint: "/widget/inactive-users" },
-    { id: "w-kpi-coverage", label: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage" },
-    // { id: "w-bar-methods", type: "chart", subtype: "bar", stylized: "bar-group", title: "attendance.chart.methods", endpoint: "/widget/bar-methods" },
-    { id: "w-diaria-desglose", label: "Asistencia Diaria y Desglose Operativo", endpoint: "/widget/asistencia-desglose" },
-    { id: "w-area-overtime", label: "Análisis de Horas Extras (Sobrecostos de Nómina)", endpoint: "/widget/area-overtime" },
-    { id: "w-monitoreo-hardware", label: "Monitoreo de Hardware (Lectores Biométricos)", endpoint: "/widget/monitoreo-hardware" },
-    { id: "w-fugas-tiempo-combinadas", label: "Fugas de Tiempo Combinadas por Sucursal", endpoint: "/widget/fugas-tiempo-combinadas" },
-    { id: "w-puntualidad", label: "Control de Puntualidad Diaria", endpoint: "/widget/puntualidad" },
-    { id: "w-table-absent", label: "Listado de Ausentes", endpoint: "/widget/table-absent" },
-    { id: "w-kpi-coverage-2", label: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage-2" },
-    { id: "w-kpi-coverage-3", label: "attendance.kpi.coverage", endpoint: "/widget/kpi-coverage-3" },
-    { id: "w-close", label: "Cerrar Turno", endpoint: "/widget/close" }
+    ...blocks,
+    {
+      metaData: {
+        updateAt: new Date().toISOString(),
+      },
+    },
   ];
 }
-
-const updateAt = new Date();
 
 function createDashboardRouter(requireAuth) {
   const router = express.Router();
 
   router.get("/attendance", requireAuth, (_req, res) => {
-    return res.json({ data: { widgets: buildAttendanceWidgets() } });
-  });
-
-  router.post("/widget/kpi-present", requireAuth, (_req, res) => {
-    return res.json({
-      data: {
-        mainValue: { value: 142 },
-        metrics: [
-          { type: "numeric", key: "inbound", value: 130, label: "attendance.kpi.entries" },
-          { type: "numeric", key: "outbound", value: 12, label: "attendance.kpi.exits" },
-          {
-            key: "distribution",
-            type: "distribution",
-            label: "attendance.kpi.distribution",
-            segments: [
-              { label: "Presentes", value: 130, color: "#22c55e" },
-              { label: "Ausentes", value: 12, color: "#ef4444" },
-            ],
-          },
-        ],
-        trend: { direction: "up", value: "3", unit: "%", color: "#22c55e", label: "attendance.trend.vs_yesterday", create_at: "" },
-      },
-    });
+    return res.json({ data: { widgets: WIDGETS_FOR_ATTENDANCE_ROUTE } });
   });
 
   router.post("/widget/kpi-coverage", requireAuth, (_req, res) => {
     return res.json({
-      data: [
+      data: withMetaData([
         {
           type: "gauge",
           props: {
-            label: "Cobertura en Tiempo Real",
-            value: 87,
-            colors: ["#EF4444", "#F59E0B", "#22C55E"],
-          }
+            label: "SLA mensual de plataforma",
+            value: 99.92,
+            unit: "%",
+            context: "Objetivo 99.90%",
+            colorStops: [
+              { limit: 98.5, color: "#ef4444" },
+              { limit: 99.5, color: "#f59e0b" },
+              { limit: 100, color: "#22c55e" },
+            ],
+          },
         },
         {
           type: "trend",
           props: {
-            label: "Respecto a ayer",
-            value: 3,
-            unit: "%",
+            label: "Variacion semanal",
+            value: 0.18,
+            unit: "pp",
             direction: "up",
-            color: "#22C55E"
-          }
+            color: "#22C55E",
+          },
         },
         {
           type: "distribution",
           props: [
-            {
-              key: "presentes",
-              label: "EMPLEADOS PRESENTES",
-              value: 2740
-            },
-            {
-              key: "programados",
-              label: "EMPLEADOS PROGRAMADOS",
-              value: 3140
-            },
+            { key: "tenants", label: "Clientes enterprise activos", value: 187 },
+            { key: "incidents", label: "Incidentes con brecha SLA (30d)", value: 3 },
             {
               key: "distribution",
               type: "distribution",
-              label: "Distribución de Estado",
+              label: "Estado operativo de servicios",
               segments: [
-                { label: "A tiempo", value: 2740, color: "#22C55E" },
-                { label: "Atrasos", value: 280, color: "#F59E0B" },
-                { label: "Ausentes", value: 120, color: "#EF4444" }
-              ]
-            }
-          ]
+                { label: "Operacion normal", value: 92, color: "#5371c2" },
+                { label: "Degradacion parcial", value: 6, color: "#94A3B8" },
+                { label: "Interrupcion", value: 2, color: "#475569" },
+              ],
+            },
+          ],
         },
-        {
-          "metaData": {
-            "updateAt": new Date().toISOString()
-          }
-        }
-      ],
-
-    });
-  });
-
-  router.post("/widget/kpi-absent", requireAuth, (_req, res) => {
-    return res.json({
-      data: {
-        mainValue: { value: 18 },
-        metrics: [
-          { type: "numeric", key: "justified", value: 10, label: "attendance.kpi.justified" },
-          { type: "numeric", key: "unjustified", value: 8, label: "attendance.kpi.unjustified" },
-          {
-            key: "distribution",
-            type: "distribution",
-            label: "attendance.kpi.absence_type",
-            segments: [
-              { label: "Justificadas", value: 10, color: "#f59e0b" },
-              { label: "No justificadas", value: 8, color: "#ef4444" },
-            ],
-          },
-        ],
-        trend: { direction: "down", value: "2", unit: "%", color: "#22c55e", label: "attendance.trend.vs_yesterday", create_at: "" },
-      },
-    });
-  });
-
-  router.post("/widget/kpi-late", requireAuth, (_req, res) => {
-    return res.json({
-      data: {
-        mainValue: { value: 7 },
-        metrics: [
-          { type: "numeric", key: "avg_minutes", value: "12:30", label: "attendance.kpi.avg_delay" },
-          {
-            key: "distribution",
-            type: "distribution",
-            label: "attendance.kpi.delay_range",
-            segments: [
-              { label: "< 15 min", value: 4, color: "#f59e0b" },
-              { label: "15-30 min", value: 2, color: "#f97316" },
-              { label: "> 30 min", value: 1, color: "#ef4444" },
-            ],
-          },
-        ],
-        trend: { direction: "up", value: "1", unit: "", color: "#ef4444", label: "attendance.trend.vs_yesterday", create_at: "" },
-      },
+      ]),
     });
   });
 
   router.post("/widget/bar-daily", requireAuth, (_req, res) => {
-    const days = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
     return res.json({
-      data: [
+      data: withMetaData([
         {
           type: "bar",
           props: {
             isStacked: true,
             series_config: [
-              {
-                key: "value_1",
-                label: "Minutos de Retraso",
-                color: "#0091ec"
-              },
-              {
-                key: "value_2",
-                label: "Total Ausencias",
-                color: "#adeccd"
-              }
+              { key: "value_1", label: "Solicitudes IA (k)", color: "#0ea5e9" },
+              { key: "value_2", label: "Tokens procesados (M)", color: "#86efac" },
             ],
             series: [
-              {
-                label: "Operaciones",
-                value_1: 845,
-                value_2: 120
-              },
-              {
-                label: "Logística",
-                value_1: 620,
-                value_2: 80
-              },
-              {
-                label: "Ventas",
-                value_1: 315,
-                value_2: 30
-              },
-              {
-                label: "Administración",
-                value_1: 120,
-                value_2: 10
-              }
-            ]
-          }
-        },
-        {
-          type: "kpi",
-          props: {
-            label: "Total Minutos Perdidos",
-            value: 1900
+              { label: "Cari Assistant", value_1: 1280, value_2: 56 },
+              { label: "Falcon Analytics", value_1: 980, value_2: 42 },
+              { label: "Gik Copilot", value_1: 760, value_2: 35 },
+              { label: "Cari Vision", value_1: 420, value_2: 18 },
+            ],
           },
         },
-        {
-          type: "kpi",
-          props: {
-            label: "Total Ausencias",
-            value: 240
-          },
-        },
-        {
-          type: "kpi",
-          props: {
-            label: "Foco de Atención (Retrasos)",
-            value: "Operaciones"
-          }
-        }
-      ]
-    });
-  });
-
-  router.post("/widget/bar-weekly", requireAuth, (_req, res) => {
-    const weeks = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"];
-    return res.json({
-      data: {
-        series: [
-          { name: "Entradas", data: weeks.map((w) => ({ type: w, value: 700 + Math.floor(Math.random() * 100) })) },
-        ],
-      },
+        { type: "kpi", props: { label: "Solicitudes IA del dia", value: "3.44M" } },
+        { type: "kpi", props: { label: "Tokens procesados", value: "151M" } },
+        { type: "kpi", props: { label: "Producto con mayor carga", value: "Cari Assistant" } },
+      ]),
     });
   });
 
   router.post("/widget/area-weekly", requireAuth, (_req, res) => {
-
     return res.json({
-      data: [
+      data: withMetaData([
         {
           type: "area",
           props: {
             series_config: [
-              {
-                key: "value_1",
-                label: "Horas Extras (Total)",
-                color: "#adeccd"
-              }
+              { key: "value_1", label: "Latencia p95 API (ms)", color: "#5371c2" },
             ],
             series: [
-              {
-                label: "01 Jul",
-                value_1: 105
-              },
-              {
-                label: "08 Jul",
-                value_1: 145
-              },
-              {
-                label: "15 Jul",
-                value_1: 110
-              },
-              {
-                label: "22 Jul",
-                value_1: 180
-              },
-              {
-                label: "29 Jul",
-                value_1: 95
-              },
-              {
-                label: "05 Ago",
-                value_1: 105
-              }
-            ]
-          }
-        },
-        {
-          type: "kpi",
-          props: {
-            label: "Total Acumulado",
-            value: 755
+              { label: "Sem 1", value_1: 212 },
+              { label: "Sem 2", value_1: 206 },
+              { label: "Sem 3", value_1: 198 },
+              { label: "Sem 4", value_1: 221 },
+              { label: "Sem 5", value_1: 194 },
+              { label: "Sem 6", value_1: 187 },
+            ],
           },
         },
-        {
-          type: "kpi",
-          props: {
-            label: "Promedio Semanal",
-            value: 125.8
-          },
-        },
-        {
-          type: "kpi",
-          props: {
-            label: "Pico Máximo",
-            value: "Semana 22 Jul"
-          },
-        }
-      ]
+        { type: "kpi", props: { label: "Promedio p95 mensual", value: "203 ms" } },
+        { type: "kpi", props: { label: "Mejor semana", value: "Sem 6 (187 ms)" } },
+        { type: "kpi", props: { label: "Peor semana", value: "Sem 4 (221 ms)" } },
+      ]),
     });
   });
 
   router.post("/widget/puntualidad", requireAuth, (_req, res) => {
-
     return res.json({
-      data: [
+      data: withMetaData([
+         {
+          type: "gauge",
+          props: {
+            label: "SLA mensual de plataforma",
+            value: 99.92,
+            unit: "%",
+            context: "Objetivo 99.90%",
+            colorStops: [
+              { limit: 18.5, color: "#ef4444" },
+              { limit: 49.5, color: "#f59e0b" },
+              { limit: 100, color: "#22c55e" },
+            ],
+          },
+        },
         {
           type: "distribution",
           props: [
-            {
-              key: "less_than_15",
-              label: "Empleador llegados tarde hoy",
-              value: 12
-            },
-            {
-              key: "impact_total",
-              label: "Impacto Total",
-              value: "4 horas 30 min."
-            },
+            { key: "deployments", label: "Despliegues completados (7d)", value: 64 },
+            { key: "rollback_rate", label: "Rollback rate", value: "3.1%" },
             {
               key: "distribution",
               type: "distribution",
-              label: "Distribución de retraso",
+              label: "Resultado de despliegues",
               segments: [
-                { label: "con 15min anticipacion", value: 5, color: "#22C55E" },
-                { label: "con 5min anticipacion - 5min tarde", value: 4, color: "#F59E0B" },
-                { label: "con 30min tarde", value: 3, color: "#EF4444" }
-              ]
-            }
-          ]
-        }
-      ],
-    });
-  });
-
-  router.post("/widget/pie-absence", requireAuth, (_req, res) => {
-    return res.json({
-      data: {
-        series: [
-          {
-            name: "Distribucion",
-            data: [
-              { type: "Presentes", value: 142 },
-              { type: "Ausentes", value: 18 },
-              { type: "Tardanzas", value: 7 },
-              { type: "Vacaciones", value: 5 },
-              { type: "Incapacidades", value: 3 },
-            ],
-          },
-        ],
-      },
-    });
-  });
-
-  router.post("/widget/inactive-users", requireAuth, (_req, res) => {
-    return res.json({
-      data: {
-        summary: { label: "Usuarios Inactivos", value: 3 },
-        series: [
-          {
-            name: "Top Enterprices",
-            type: "table",
-            columns: [
-              { key: "enterprice", label: "enterprice" },
-              { key: "devices", label: "devices" },
-            ],
-            data: [
-              {
-                enterprice: "Dipsa Food",
-                devices: "CELL PHONES FO00067 - LIVANOVA-OUTSOURCING DE RECEPCION",
-                tooltip: "2018-10-18 09:43:01",
-              },
-              {
-                enterprice: "Adecco Outsourcing Colombia",
-                devices: "CELL PHONES FO00068 - LIVANOVA-OUTSOURCING DE RECEPCION",
-                tooltip: "2018-10-19 10:00:00",
-              },
-              {
-                enterprice: "Empresa 3",
-                devices: "CELL PHONES FO00069 - LIVANOVA-OUTSOURCING DE RECEPCION",
-                tooltip: "2018-10-20 11:00:00",
-              },
-            ],
-          },
-        ],
-      },
-    });
-  });
-
-  router.post("/widget/bar-methods", requireAuth, (_req, res) => {
-    const days = Array.from({ length: 30 }, (_, index) => index + 1);
-    const biometricoValues = [22, 18, 95, 19, 89, 186, 14, 11, 17, 176, 13, 70, 18, 15, 16, 160, 17, 54, 15, 149, 14, 143, 10, 137, 14, 111, 128, 125, 122, 119];
-    const manualValues = [15, 52, 14, 17, 10, 102, 165, 168, 70, 73, 16, 78, 81, 14, 16, 89, 191, 14, 19, 19, 10, 24, 6, 19, 21, 11, 116, 219, 21, 224];
-    const manualTotal = manualValues.reduce((acc, value) => acc + value, 0);
-    const biometricoTotal = biometricoValues.reduce((acc, value) => acc + value, 0);
-    const combinedTotal = manualTotal + biometricoTotal;
-    const manualRatePercent = combinedTotal > 0 ? Number(((manualTotal / combinedTotal) * 100).toFixed(1)) : 0;
-
-    return res.json({
-      data: {
-        summary: {
-          type: "gauge",
-          label: "% tasa mensual promedio",
-          context: "Ultimos 30 días",
-          value: `${manualRatePercent}`,
-          unit: "%",
-          color: "#2196f3",
+                { label: "Exitosos", value: 58, color: "#5371c2" },
+                { label: "Con rollback", value: 4, color: "#94A3B8" },
+                { label: "Fallidos", value: 2, color: "#475569" },
+              ],
+            },
+          ],
         },
-        series: [
-          {
-            label: "Biometrico",
-            stackId: "a",
-            yAxisId: "left",
-            color: "#4caf50",
-            data: days.map((day, index) => ({
-              type: String(day),
-              label: "Feb",
-              value: biometricoValues[index],
-            })),
+        {
+          type: "trend",
+          props: {
+            label: "Cambio en lead time",
+            value: 11,
+            unit: "%",
+            direction: "down",
+            color: "#22C55E",
           },
-          {
-            label: "Manual",
-            stackId: "a",
-            yAxisId: "left",
-            color: "#2196f3",
-            data: days.map((day, index) => ({
-              type: String(day),
-              label: "Feb",
-              value: manualValues[index],
-            })),
-          },
-        ],
-      },
+        },
+      ]),
     });
   });
 
   router.post("/widget/asistencia-desglose", requireAuth, (_req, res) => {
-
     return res.json({
-      data: [
+      data: withMetaData([
         {
           type: "bar",
           props: {
             isStacked: true,
             series_config: [
-              {
-                key: "value_1",
-                label: "Empleados Presentes",
-                color: "#adeccd"
-              },
-              {
-                key: "value_2",
-                label: "Empleados Ausentes",
-                color: "#0091ec"
-              }
+              { key: "value_1", label: "Usuarios activos IA", color: "#67e8f9" },
+              { key: "value_2", label: "Usuarios objetivo", color: "#0ea5e9" },
             ],
             series: [
-              {
-                label: "Operaciones",
-                value_1: 310,
-                value_2: 24
-              },
-              {
-                label: "Logística",
-                value_1: 185,
-                value_2: 18
-              },
-              {
-                label: "Ventas",
-                value_1: 150,
-                value_2: 12
-              },
-              {
-                label: "Administración",
-                value_1: 75,
-                value_2: 5
-              }
-            ]
-          }
+              { label: "Operaciones", value_1: 930, value_2: 1200 },
+              { label: "Comercial", value_1: 640, value_2: 800 },
+              { label: "Soporte", value_1: 510, value_2: 700 },
+              { label: "Finanzas", value_1: 320, value_2: 450 },
+            ],
+          },
         },
         {
-          "type": "gauge",
-          "props": {
-            "label": "Adopci\u00f3n Biom\u00e9trica (Mes)",
-            "value": 12.5,
-            "unit": "%",
-            "context": "13 biom\u00e9tricas de 104 totales (12.5%)",
-            "colorStops": [
-              {
-                "limit": 10,
-                "color": "#FF6B6B"
-              },
-              {
-                "limit": 80,
-                "color": "#FFC857"
-              },
-              {
-                "limit": 100,
-                "color": "#2EC4B6"
-              }
-            ]
-          }
+          type: "gauge",
+          props: {
+            label: "Adopcion mensual de IA",
+            value: 68.4,
+            unit: "%",
+            context: "2,400 de 3,150 usuarios objetivo",
+            colorStops: [
+              { limit: 40, color: "#FF6B6B" },
+              { limit: 75, color: "#FFC857" },
+              { limit: 100, color: "#2EC4B6" },
+            ],
+          },
         },
         {
           type: "trend",
           props: {
-            label: "Respecto a ayer",
-            value: 1.2,
+            label: "Crecimiento vs mes anterior",
+            value: 6.7,
             unit: "%",
             direction: "up",
-            color: "#22C55E"
-          }
+            color: "#22C55E",
+          },
         },
-        {
-          type: "kpi",
-          props: {
-            label: "Total Ausencias Hoy",
-            value: 59
-          }
-        },
-        {
-          type: "kpi",
-          props: {
-            "label": "widgets.pending_resolution",
-            "context": "widgets.inconsistencies_weekly",
-            "value": "Operaciones"
-          }
-        },
-        {
-          type: "kpi",
-          props: {
-            label: "Mejor Asistencia",
-            value: "Administración"
-          }
-        },
-        {
-          "metaData": {
-            "updateAt": new Date().toISOString()
-          }
-        }
-      ],
-
+        { type: "kpi", props: { label: "Usuarios activos hoy", value: 2400 } },
+        { type: "kpi", props: { label: "Area con mayor adopcion", value: "Operaciones" } },
+        { type: "kpi", props: { label: "Objetivo mensual", value: "72%" } },
+      ]),
     });
   });
 
   router.post("/widget/area-overtime", requireAuth, (_req, res) => {
     return res.json({
-      data: [
+      data: withMetaData([
         {
           type: "area",
           props: {
             series_config: [
-              {
-                key: "value_1",
-                label: "Horas Extras Generadas",
-                color: "#F59E0B"
-              }
+              { key: "value_1", label: "Costo cloud semanal (COP MM)", color: "#5371c2" },
             ],
             series: [
-              {
-                label: "Semana 1",
-                value_1: 120
-              },
-              {
-                label: "Semana 2",
-                value_1: 150
-              },
-              {
-                label: "Semana 3",
-                value_1: 90
-              },
-              {
-                label: "Semana 4",
-                value_1: 140
-              }
-            ]
-          }
+              { label: "Sem 1", value_1: 182 },
+              { label: "Sem 2", value_1: 176 },
+              { label: "Sem 3", value_1: 191 },
+              { label: "Sem 4", value_1: 169 },
+              { label: "Sem 5", value_1: 165 },
+            ],
+          },
         },
-        {
-          type: "kpi",
-          props: {
-            label: "Total Horas Extras (Mes)",
-            value: 500
-          }
-        },
-        {
-          type: "kpi",
-          props: {
-            label: "Promedio Semanal",
-            value: 125
-          }
-        },
-        {
-          type: "kpi",
-          props: {
-            label: "Semana Crítica (Pico)",
-            value: "Semana 2"
-          }
-        }
-      ]
+        { type: "kpi", props: { label: "Gasto cloud acumulado", value: "883 COP MM" } },
+        { type: "kpi", props: { label: "Costo por 1k requests", value: "COP 2,140" } },
+        { type: "kpi", props: { label: "Semana de mayor costo", value: "Sem 3" } },
+      ]),
     });
   });
 
   router.post("/widget/monitoreo-hardware", requireAuth, (_req, res) => {
     return res.json({
-      data: [
+      data: withMetaData([
         {
-          type: "kpi",
+          type: "gauge",
           props: {
-            label: "Equipos que requieren Soporte Hoy",
-            value: 10
-          }
-        }
-      ]
+            label: "Capacidad disponible de GPU",
+            value: 74,
+            unit: "%",
+            context: "222 GPUs libres de 300",
+            colorStops: [
+              { limit: 35, color: "#EF4444" },
+              { limit: 65, color: "#F59E0B" },
+              { limit: 100, color: "#22C55E" },
+            ],
+          },
+        },
+        {
+          type: "trend",
+          props: {
+            label: "Variacion de temperatura media",
+            value: 2.1,
+            unit: "C",
+            direction: "down",
+            color: "#22C55E",
+          },
+        },
+        {
+          type: "distribution",
+          props: [
+            { key: "nodes", label: "Nodos monitoreados", value: 57 },
+            { key: "maintenance", label: "Nodos en mantenimiento", value: 4 },
+            {
+              key: "distribution",
+              type: "distribution",
+              label: "Estado de salud de nodos",
+              segments: [
+                { label: "Saludable", value: 49, color: "#5371c2" },
+                { label: "Observacion", value: 6, color: "#94A3B8" },
+                { label: "Critico", value: 2, color: "#475569" },
+              ],
+            },
+          ],
+        },
+      ]),
     });
   });
 
   router.post("/widget/fugas-tiempo-combinadas", requireAuth, (_req, res) => {
     return res.json({
-      data: [
+      data: withMetaData([
         {
           type: "bar",
           props: {
             isStacked: true,
             series_config: [
-              {
-                key: "value_1",
-                label: "Llegadas Tarde (Min)",
-                color: "#0091ec"
-              },
-              {
-                key: "value_2",
-                label: "Salidas Tempranas (Min)",
-                color: "#adeccd"
-              }
+              { key: "value_1", label: "Incidentes abiertos", color: "#38bdf8" },
+              { key: "value_2", label: "Incidentes resueltos", color: "#86efac" },
             ],
             series: [
-              {
-                label: "Sucursal Norte",
-                value_1: 420,
-                value_2: 180
-              },
-              {
-                label: "Sucursal Sur",
-                value_1: 310,
-                value_2: 90
-              },
-              {
-                label: "Sucursal Este",
-                value_1: 200,
-                value_2: 45
-              },
-              {
-                label: "Sucursal Oeste",
-                value_1: 150,
-                value_2: 30
-              }
-            ]
-          }
+              { label: "API Gateway", value_1: 19, value_2: 36 },
+              { label: "Data Platform", value_1: 14, value_2: 31 },
+              { label: "LLM Serving", value_1: 27, value_2: 42 },
+              { label: "Auth & IAM", value_1: 8, value_2: 19 },
+            ],
+          },
         },
-        {
-          type: "kpi",
-          props: {
-            label: "Total Tiempo Perdido",
-            value: "1425 Min"
-          }
-        },
-        {
-          type: "kpi",
-          props: {
-            label: "Infracción Principal",
-            value: "Llegadas Tarde (1080 Min)"
-          }
-        },
-        {
-          type: "kpi",
-          props: {
-            "label": "widgets.pending_resolution",
-            "value": 11,
-            "context": "widgets.inconsistencies_weekly"
-          }
-        }
-      ]
+        { type: "kpi", props: { label: "Total incidentes del periodo", value: 196 } },
+        { type: "kpi", props: { label: "Dominio con mayor recurrencia", value: "LLM Serving" } },
+        { type: "kpi", props: { label: "MTTR promedio", value: "1h 42m" } },
+      ]),
     });
   });
 
   router.post("/widget/table-absent", requireAuth, (_req, res) => {
     return res.json({
-      data: [
+      data: withMetaData([
         {
           type: "table",
           props: {
             columns: [
-              {
-                key: "name",
-                label: "Nombre"
-              },
-              {
-                key: "date",
-                label: "Fecha"
-              },
-              {
-                key: "status",
-                label: "Estado"
-              }
+              { key: "account", label: "Cuenta" },
+              { key: "ticket", label: "Ticket" },
+              { key: "severity", label: "Severidad" },
+              { key: "open_since", label: "Abierto desde" },
+              { key: "sla_risk", label: "Riesgo SLA" },
+              { key: "owner", label: "Owner" },
+              { key: "region", label: "Region" },
+              { key: "status", label: "Estado" },
             ],
             rows: [
-              { name: "Juan Pérez", date: "2024-06-01", status: "Ausente", "tooltip": "SRV10" },
-              { name: "María López", date: "2024-06-01", status: "Presente", "tooltip": "SRV11" },
-              { name: "Carlos García", date: "2024-06-01", status: "Ausente", "tooltip": "SRV12" },
-              { name: "Ana Torres", date: "2024-06-01", status: "Presente", "tooltip": "SRV13" },
-              { name: "Luis Fernández", date: "2024-06-01", status: "Ausente", "tooltip": "SRV14" },
-            ]
-          }
-        }
-      ]
+              { account: "Andina Retail Group", ticket: "SUP-3145", severity: "P1", open_since: "2026-10-05 09:12", sla_risk: "Alto", owner: "Lina G.", region: "Bogota", status: "En investigacion" },
+              { account: "Banco Cumbre", ticket: "SUP-3138", severity: "P2", open_since: "2026-10-05 11:45", sla_risk: "Medio", owner: "David M.", region: "Medellin", status: "Pendiente cliente" },
+              { account: "Nova Logistics", ticket: "SUP-3132", severity: "P2", open_since: "2026-10-04 17:26", sla_risk: "Medio", owner: "Carla O.", region: "Cali", status: "En validacion" },
+              { account: "Salud TotalNet", ticket: "SUP-3127", severity: "P1", open_since: "2026-10-04 08:31", sla_risk: "Alto", owner: "Johan R.", region: "Bogota", status: "Escalado a SRE" },
+              { account: "Energia Pacifico", ticket: "SUP-3119", severity: "P3", open_since: "2026-10-03 14:09", sla_risk: "Bajo", owner: "Diana P.", region: "Barranquilla", status: "En cola" },
+              { account: "Grupo Prisma", ticket: "SUP-3110", severity: "P2", open_since: "2026-10-03 09:20", sla_risk: "Medio", owner: "Fabian C.", region: "Bucaramanga", status: "En curso" },
+              { account: "Cooperativa Alto Norte", ticket: "SUP-3107", severity: "P3", open_since: "2026-10-02 16:55", sla_risk: "Bajo", owner: "Sandra N.", region: "Pereira", status: "Pendiente patch" },
+              { account: "Telecom Oriente", ticket: "SUP-3098", severity: "P2", open_since: "2026-10-02 10:02", sla_risk: "Medio", owner: "Juan S.", region: "Bogota", status: "Mitigado" },
+            ],
+          },
+        },
+      ]),
     });
   });
 
   router.post("/widget/kpi-coverage-2", requireAuth, (_req, res) => {
-
     return res.json({
-      data: [
+      data: withMetaData([
         {
-          "type": "gauge",
-           "props": {
-                "label": "widgets.biometric_adoption_month",
-                "value": 50.6,
-                "colorStops": [
-                    {
-                        "limit": 84,
-                        "color": "#ef4444"
-                    },
-                    {
-                        "limit": 94,
-                        "color": "#eab308"
-                    },
-                    {
-                        "limit": 100,
-                        "color": "#22c55e"
-                    }
-                ]
-            }
+          type: "gauge",
+          props: {
+            label: "Change failure rate saludable",
+            value: 96.8,
+            unit: "%",
+            context: "Objetivo >= 95%",
+            colorStops: [
+              { limit: 84, color: "#ef4444" },
+              { limit: 94, color: "#eab308" },
+              { limit: 100, color: "#22c55e" },
+            ],
+          },
         },
         {
           type: "trend",
           props: {
-            label: "Respecto a ayer",
-            value: 3,
-            unit: "%",
+            label: "Variacion quincenal",
+            value: 1.4,
+            unit: "pp",
             direction: "up",
-            color: "#22C55E"
-          }
+            color: "#22C55E",
+          },
         },
         {
           type: "distribution",
           props: [
-            {
-              key: "presentes",
-              label: "EMPLEADOS PRESENTES",
-              value: 2740
-            },
-            {
-              key: "programados",
-              label: "EMPLEADOS PROGRAMADOS",
-              value: 3140
-            },
+            { key: "deploys", label: "Despliegues totales (30d)", value: 182 },
+            { key: "failed", label: "Despliegues fallidos", value: 6 },
             {
               key: "distribution",
               type: "distribution",
-              label: "Distribución de Estado",
+              label: "Resultado de despliegues",
               segments: [
-                { label: "A tiempo", value: 2740, color: "#22C55E" },
-                { label: "Atrasos", value: 280, color: "#F59E0B" },
-                { label: "Ausentes", value: 120, color: "#EF4444" }
-              ]
-            }
-          ]
+                { label: "Exitosos", value: 176, color: "#5371c2" },
+                { label: "Con rollback", value: 4, color: "#94A3B8" },
+                { label: "Fallidos", value: 2, color: "#475569" },
+              ],
+            },
+          ],
         },
-        {
-          "metaData": {
-            "updateAt": new Date().toISOString()
-          }
-        }
-      ],
+      ]),
     });
   });
 
   router.post("/widget/kpi-coverage-3", requireAuth, (_req, res) => {
     return res.json({
-      data: [
+      data: withMetaData([
         {
-          "type": "gauge",
-           "props": {
-                "label": "widgets.biometric_adoption_month",
-                "value": 99.6,
-                "colorStops": [
-                    {
-                        "limit": 84,
-                        "color": "#ef4444"
-                    },
-                    {
-                        "limit": 94,
-                        "color": "#eab308"
-                    },
-                    {
-                        "limit": 100,
-                        "color": "#22c55e"
-                    }
-                ]
-            }
+          type: "gauge",
+          props: {
+            label: "Security hardening score",
+            value: 88.1,
+            unit: "%",
+            context: "Target trimestral: 90%",
+            colorStops: [
+              { limit: 70, color: "#ef4444" },
+              { limit: 85, color: "#eab308" },
+              { limit: 100, color: "#22c55e" },
+            ],
+          },
         },
         {
           type: "trend",
           props: {
-            label: "Respecto a ayer",
-            value: 3,
+            label: "Riesgo residual vs semana anterior",
+            value: 8,
             unit: "%",
-            direction: "up",
-            color: "#22C55E"
-          }
+            direction: "down",
+            color: "#22C55E",
+          },
         },
         {
           type: "distribution",
           props: [
-            {
-              key: "presentes",
-              label: "EMPLEADOS PRESENTES",
-              value: 2740
-            },
-            {
-              key: "programados",
-              label: "EMPLEADOS PROGRAMADOS",
-              value: 3140
-            },
+            { key: "critical_open", label: "Vulnerabilidades criticas abiertas", value: 2 },
+            { key: "high_open", label: "Vulnerabilidades altas abiertas", value: 9 },
             {
               key: "distribution",
               type: "distribution",
-              label: "Distribución de Estado",
+              label: "Inventario de vulnerabilidades",
               segments: [
-                { label: "A tiempo", value: 2740, color: "#22C55E" },
-                { label: "Atrasos", value: 280, color: "#F59E0B" },
-                { label: "Ausentes", value: 120, color: "#EF4444" }
-              ]
-            }
-          ]
+                { label: "Criticas", value: 2, color: "#475569" },
+                { label: "Altas", value: 9, color: "#94A3B8" },
+                { label: "Medias", value: 17, color: "#5371c2" },
+              ],
+            },
+          ],
         },
-        {
-          "metaData": {
-            "updateAt": new Date().toISOString()
-          }
-        }
-      ],
-
+      ]),
     });
   });
 
   router.post("/widget/close", requireAuth, (_req, res) => {
     return res.json({
-      data: [
+      data: withMetaData([
         {
-          type: "bar",
+          type: "pie",
           props: {
-            series_config: [
-              {
-                key: "value_1",
-                label: "Llegadas Tarde (Min)",
-                color: "#0091ec"
-              },
-              {
-                key: "value_2",
-                label: "Salidas Tempranas (Min)",
-                color: "#adeccd"
-              }
-            ],
             series: [
-              {
-                label: "Sucursal Norte",
-                value_1: 420,
-                value_2: 180
-              },
-              {
-                label: "Sucursal Sur",
-                value_1: 310,
-                value_2: 90
-              },
-              {
-                label: "Sucursal Este",
-                value_1: 200,
-                value_2: 45
-              },
-              {
-                label: "Sucursal Oeste",
-                value_1: 150,
-                value_2: 30
-              }
-            ]
-          }
+              { label: "Resueltos en SLA", value: 47, color: "#22C55E" },
+              { label: "Resueltos fuera de SLA", value: 9, color: "#F59E0B" },
+              { label: "Abiertos", value: 6, color: "#EF4444" },
+            ],
+          },
         },
         {
           type: "kpi",
           props: {
-            "label": "widgets.pending_resolution",
-            "value": 11,
-            "context": "widgets.inconsistencies_weekly"
-          }
+            label: "Incidentes P1/P2 activos",
+            value: 6,
+            context: "Ultimos 7 dias",
+          },
         },
         {
           type: "distribution",
@@ -916,22 +515,34 @@ function createDashboardRouter(requireAuth) {
             {
               key: "distribution",
               type: "distribution",
-              label: "Distribución de Estado",
+              label: "Tiempo de respuesta inicial",
               segments: [
-                { label: "sin salida", value: 92, valueLabel: "casos", color: "#22C55E" },
-                { label: "con retraso", value: 0, valueLabel: "casos", color: "#F59E0B" },
-                { label: "sin entrada", value: 0, valueLabel: "casos", color: "#EF4444" }
-              ]
-            }
-          ]
+                { label: "< 10 min", value: 38, valueLabel: "casos", color: "#22C55E" },
+                { label: "10-30 min", value: 17, valueLabel: "casos", color: "#F59E0B" },
+                { label: "> 30 min", value: 7, valueLabel: "casos", color: "#EF4444" },
+              ],
+            },
+          ],
         },
-        {
-          "metaData": {
-            "updateAt": new Date().toISOString()
-          }
-        }
-      ],
+      ]),
+    });
+  });
 
+  router.post("/widget/widget-pie", requireAuth, (_req, res) => {
+    return res.json({
+      data: withMetaData([
+        {
+          type: "pie",
+          props: {
+            series: [
+              { label: "Cari Assistant", value: 38, color: "#22C55E" },
+              { label: "Falcon Analytics", value: 27, color: "#0EA5E9" },
+              { label: "Gik Copilot", value: 21, color: "#F59E0B" },
+              { label: "Servicios Profesionales", value: 14, color: "#A855F7" },
+            ],
+          },
+        },
+      ]),
     });
   });
 
@@ -1004,27 +615,10 @@ function createDashboardRouter(requireAuth) {
   router.get("/widgets-list", requireAuth, (_req, res) => {
     return res.json({
       data: {
-        widgets: [
-          // { id: "kpi-present", type: "kpi", subtype: "kpi", title: "Presentes Hoy", endpoint: "/widget/kpi-present", path_widget: "/widget/kpi-present", description: "Total de empleados presentes hoy", filters: WIDGET_FILTERS },
-          // { id: "kpi-absent", type: "kpi", subtype: "kpi", title: "Ausentes Hoy", endpoint: "/widget/kpi-absent", path_widget: "/widget/kpi-absent", description: "Total de empleados ausentes hoy", filters: WIDGET_FILTERS },
-          // { id: "kpi-late", type: "kpi", subtype: "kpi", title: "Tardanzas", endpoint: "/widget/kpi-late", path_widget: "/widget/kpi-late", description: "Empleados con tardanza hoy", filters: WIDGET_FILTERS },
-          { id: "bar-daily", label: "Asistencia Diaria", endpoint: "/widget/bar-daily", filters: WIDGET_FILTERS },
-          // { id: "bar-weekly", type: "chart", subtype: "bar", title: "Asistencia Semanal", endpoint: "/widget/bar-weekly", path_widget: "/widget/bar-weekly", stylized: "bar-basic", description: "Asistencia por semana (ultimas 4 sem)", filters: WIDGET_FILTERS },
-          { id: "area-weekly", label: "Evolución de Horas Extras", endpoint: "/widget/area-weekly", filters: WIDGET_FILTERS },
-          // { id: "pie-absence", type: "chart", subtype: "pie", title: "Distribucion de Ausencias", endpoint: "/widget/pie-absence", path_widget: "/widget/pie-absence", description: "Distribucion por tipo de ausencia", filters: WIDGET_FILTERS },
-          // { id: "inactive-users", type: "chart", subtype: "table", title: "Usuarios Inactivos", endpoint: "/widget/inactive-users", path_widget: "/widget/inactive-users", description: "Lista de usuarios inactivos recientemente", filters: WIDGET_FILTERS },
-          { id: "kpi-coverage", label: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage", filters: WIDGET_FILTERS },
-          // { id: "bar-methods", type: "chart", subtype: "bar", title: "Distribución de Métodos de Registro", endpoint: "/widget/bar-methods", path_widget: "/widget/bar-methods", stylized: "bar-group", description: "Distribución de métodos de registro (últimas 4 semanas)", filters: WIDGET_FILTERS },
-          { id: "asistencia-desglose", label: "Asistencia Diaria y Desglose Operativo", endpoint: "/widget/asistencia-desglose", filters: WIDGET_FILTERS },
-          { id: "area-overtime", label: "Análisis de Horas Extras (Sobrecostos de Nómina)", endpoint: "/widget/area-overtime", filters: WIDGET_FILTERS },
-          { id: "monitoreo-hardware", label: "Monitoreo de Hardware (Lectores Biométricos)", endpoint: "/widget/monitoreo-hardware", filters: WIDGET_FILTERS },
-          { id: "fugas-tiempo-combinadas", label: "Fugas de Tiempo Combinadas por Sucursal", endpoint: "/widget/fugas-tiempo-combinadas", filters: WIDGET_FILTERS },
-          { id: "w-puntualidad", label: "Control de Puntualidad Diaria", endpoint: "/widget/puntualidad", filters: WIDGET_FILTERS },
-          { id: "w-table-absent", label: "Listado de Ausentes", endpoint: "/widget/table-absent", filters: WIDGET_FILTERS },
-          { id: "kpi-coverage-2", label: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage-2", filters: WIDGET_FILTERS },
-          { id: "kpi-coverage-3", label: "Cobertura de Turno en Tiempo Real (Presentismo)", endpoint: "/widget/kpi-coverage-3", filters: WIDGET_FILTERS },
-          { id: "w-close", label: "Cerrar Turno", endpoint: "/widget/close", filters: WIDGET_FILTERS },
-        ],
+        widgets: WIDGETS_FOR_PICKER.map((widget) => ({
+          ...widget,
+          filters: WIDGET_FILTERS,
+        })),
         global_filters: {},
       },
     });
